@@ -1,6 +1,16 @@
 /* static/style.css */
+
+/* Cores do I Love PDF */
+:root {
+    --ilovepdf-red: #e5322d;
+    --ilovepdf-red-dark: #cc2c28;
+    --ilovepdf-light-gray: #f8f9fa;
+    --ilovepdf-medium-gray: #ececec;
+}
+
 body {
-    background-color: #f8f9fa; /* Cor de fundo suave */
+    font-family: 'Roboto', sans-serif; /* Usando a fonte Roboto do Google Fonts */
+    background-color: var(--ilovepdf-light-gray);
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -8,36 +18,133 @@ body {
     min-height: 100vh;
     margin: 0;
 }
-.card {
-    margin-top: 50px; /* Espaço do topo */
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+
+.app-card {
+    border: none; /* Remover borda padrão do Bootstrap */
+    border-radius: 8px; /* Cantos levemente arredondados */
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); /* Sombra mais pronunciada */
+    background-color: #fff;
+    max-width: 550px; /* Largura máxima para o cartão principal */
+    width: 100%;
+    padding: 40px !important; /* Mais padding interno */
 }
-h1 {
-    color: #007bff;
+
+.app-title {
+    color: var(--ilovepdf-red); /* Título na cor principal */
+    font-weight: 700; /* Negrito */
+    font-size: 2.5rem; /* Tamanho maior */
     margin-bottom: 30px;
 }
-.form-control-file { /* Ajuste para o input file */
-    padding: .375rem .75rem;
+
+/* Estilo para a área de upload de arquivo */
+.custom-file-upload {
+    position: relative;
+    overflow: hidden;
+    display: inline-block;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+.custom-file-upload input[type="file"] {
+    position: absolute;
+    left: 0;
+    top: 0;
+    opacity: 0;
+    cursor: pointer;
+    width: 100%;
+    height: 100%;
+    z-index: 2; /* Para garantir que o input seja clicável */
+}
+
+.custom-file-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 20px;
+    border: 3px dashed var(--ilovepdf-red); /* Borda tracejada na cor principal */
+    border-radius: 8px;
+    background-color: rgba(229, 50, 45, 0.05); /* Um fundo muito leve da cor principal */
+    color: var(--ilovepdf-red);
+    cursor: pointer;
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+    font-weight: 700;
+    font-size: 1.1rem;
     line-height: 1.5;
-    color: #495057;
-    background-color: #fff;
-    background-clip: padding-box;
-    border: 1px solid #ced4da;
-    border-radius: .25rem;
-    transition: border-color .15s ease-in-out,box-shadow .15s ease-in-out;
 }
-.btn-primary {
-    margin-top: 20px;
+
+.custom-file-label:hover {
+    background-color: rgba(229, 50, 45, 0.1); /* Mais escuro no hover */
+    border-color: var(--ilovepdf-red-dark);
 }
-.alert-danger { /* Estilos para mensagens de erro */
-    margin-top: 20px;
-    width: 100%;
-    text-align: center;
+
+.custom-file-label svg {
+    margin-bottom: 15px;
+    color: var(--ilovepdf-red);
 }
-.alert-success { /* Estilos para mensagens de sucesso */
-    margin-top: 20px;
-    width: 100%;
-    text-align: center;
+
+/* Estilo para o campo de nome do arquivo (input type="text") */
+.form-control {
+    border-radius: 5px; /* Cantos levemente arredondados para campos de texto */
+    border-color: var(--ilovepdf-medium-gray); /* Cor de borda suave */
+    box-shadow: none; /* Remover sombra padrão do Bootstrap para input */
+    transition: border-color 0.3s ease;
+}
+
+.form-control:focus {
+    border-color: var(--ilovepdf-red); /* Borda na cor principal ao focar */
+    box-shadow: 0 0 0 0.25rem rgba(229, 50, 45, 0.25); /* Sombra suave na cor principal */
+}
+
+/* Botão principal (Juntar PDFs) */
+.main-button {
+    background-color: var(--ilovepdf-red);
+    border-color: var(--ilovepdf-red);
+    font-weight: 700;
+    font-size: 1.2rem;
+    padding: 12px 25px;
+    border-radius: 8px;
+    transition: background-color 0.3s ease, border-color 0.3s ease, transform 0.2s ease;
+}
+
+.main-button:hover {
+    background-color: var(--ilovepdf-red-dark);
+    border-color: var(--ilovepdf-red-dark);
+    transform: translateY(-2px); /* Pequeno efeito de elevação */
+}
+
+/* Estilos para mensagens de alerta (Bootstrap) */
+.alert-danger {
+    background-color: #f8d7da;
+    color: #721c24;
+    border-color: #f5c6cb;
+}
+
+.alert-success {
+    background-color: #d4edda;
+    color: #155724;
+    border-color: #c3e6cb;
+}
+
+/* Responsividade básica para telas menores */
+@media (max-width: 576px) {
+    .app-card {
+        padding: 20px !important;
+        margin-top: 20px;
+    }
+    .app-title {
+        font-size: 2rem;
+    }
+    .main-button {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+    .custom-file-label {
+        font-size: 0.9rem;
+        padding: 20px 10px;
+    }
+    .custom-file-label svg {
+        width: 30px;
+        height: 30px;
+    }
 }
