@@ -6,6 +6,8 @@
     --ilovepdf-red-dark: #cc2c28;
     --ilovepdf-light-gray: #f8f9fa;
     --ilovepdf-medium-gray: #ececec;
+    --ilovepdf-text-dark: #333;
+    --ilovepdf-text-light: #555;
 }
 
 body {
@@ -17,8 +19,10 @@ body {
     justify-content: center;
     min-height: 100vh;
     margin: 0;
+    color: var(--ilovepdf-text-dark); /* Cor de texto padrão */
 }
 
+/* Estilo do card principal da aplicação */
 .app-card {
     border: none; /* Remover borda padrão do Bootstrap */
     border-radius: 8px; /* Cantos levemente arredondados */
@@ -29,6 +33,7 @@ body {
     padding: 40px !important; /* Mais padding interno */
 }
 
+/* Título principal H1 da página */
 .app-title {
     color: var(--ilovepdf-red); /* Título na cor principal */
     font-weight: 700; /* Negrito */
@@ -96,7 +101,7 @@ body {
     box-shadow: 0 0 0 0.25rem rgba(229, 50, 45, 0.25); /* Sombra suave na cor principal */
 }
 
-/* Botão principal (Juntar PDFs) */
+/* Botão principal (Juntar PDFs, Dividir PDFs) */
 .main-button {
     background-color: var(--ilovepdf-red);
     border-color: var(--ilovepdf-red);
@@ -148,7 +153,117 @@ body {
         height: 30px;
     }
 }
- .app-title-small {
+
+/* Estilo para as opções de rádio (dividir PDF) */
+.form-check {
+    padding-left: 0; /* Remover padding padrão do Bootstrap */
+    margin-bottom: 10px;
+}
+
+.form-check-input {
+    /* Esconder o rádio padrão */
+    position: absolute;
+    opacity: 0;
+    cursor: pointer;
+    height: 0;
+    width: 0;
+}
+
+.form-check-label {
+    position: relative;
+    padding: 10px 15px 10px 40px; /* Padding para o texto e espaço para o rádio customizado */
+    cursor: pointer;
+    font-size: 1rem;
+    background-color: var(--ilovepdf-medium-gray); /* Fundo cinza claro */
+    border: 1px solid var(--ilovepdf-medium-gray);
+    border-radius: 5px;
+    display: block; /* Para ocupar a largura total do container */
+    text-align: left;
+    transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.form-check-label:hover {
+    background-color: #e0e0e0; /* Um pouco mais escuro no hover */
+    border-color: #d0d0d0;
+}
+
+/* Criar o círculo customizado para o rádio */
+.form-check-label::before {
+    content: '';
+    position: absolute;
+    left: 15px; /* Posição do círculo */
+    top: 50%;
+    transform: translateY(-50%);
+    width: 20px;
+    height: 20px;
+    border: 2px solid var(--ilovepdf-red); /* Borda na cor principal */
+    border-radius: 50%;
+    background-color: #fff;
+    box-sizing: border-box;
+    transition: all 0.2s ease;
+}
+
+/* Estilo do círculo customizado quando o rádio está marcado */
+.form-check-input:checked + .form-check-label::before {
+    background-color: var(--ilovepdf-red); /* Preencher na cor principal */
+    border-color: var(--ilovepdf-red);
+    box-shadow: 0 0 0 4px rgba(229, 50, 45, 0.2); /* Sombra para indicar seleção */
+}
+
+/* Efeito no label quando o rádio está marcado */
+.form-check-input:checked + .form-check-label {
+    background-color: rgba(229, 50, 45, 0.1); /* Fundo suave na cor principal */
+    border-color: var(--ilovepdf-red); /* Borda na cor principal */
+}
+
+/* Estilo do input de intervalo de páginas */
+#page_range {
+    margin-top: 15px;
+}
+
+/* Ajustes para o texto de "Como deseja dividir?" */
+.form-label {
+    font-weight: 700; /* Mais negrito para o label */
+    color: var(--ilovepdf-text-dark);
+    margin-bottom: 10px;
+}
+
+/* --- ESTILOS DA BARRA DE NAVEGAÇÃO SUPERIOR (Navbar) --- */
+
+.navbar {
+    background-color: #fff !important; /* Fundo branco para a navbar */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Sombra leve */
+    padding: 1rem 1.5rem; /* Padding para a navbar */
+}
+
+.navbar-brand {
+    color: var(--ilovepdf-red) !important; /* Cor do logo/marca */
+    font-weight: 700;
+    font-size: 1.8rem; /* Tamanho maior para o logo */
+}
+
+.nav-link {
+    color: var(--ilovepdf-text-dark) !important; /* Cor do texto dos links */
+    font-weight: 500;
+    font-size: 1.1rem;
+    padding: 0.5rem 1rem !important; /* Padding para os links */
+    transition: color 0.2s ease, background-color 0.2s ease;
+    border-radius: 5px; /* Cantos arredondados para o hover/active */
+}
+
+.nav-link:hover {
+    color: var(--ilovepdf-red) !important; /* Cor do link no hover */
+    background-color: rgba(229, 50, 45, 0.05); /* Fundo suave na cor principal */
+}
+
+.nav-link.active {
+    color: var(--ilovepdf-red) !important; /* Cor do link ativo */
+    font-weight: 700 !important;
+    background-color: rgba(229, 50, 45, 0.1); /* Fundo mais pronunciado para o link ativo */
+}
+
+/* Ajuste para o app-title-small se ele for usado em outro lugar */
+.app-title-small {
     color: var(--ilovepdf-red);
     font-weight: 700;
     font-size: 1.5rem; /* Ajuste o tamanho conforme desejar */
