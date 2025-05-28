@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Join PDF</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Join PDF</h1>
+    <form action="/unir" method="post" enctype="multipart/form-data">
+        <label for="pdf_files">Selecione os arquivos PDF:</label>
+        <input type="file" id="pdf_files" name="pdfs[]" accept=".pdf" multiple>
+        <button type="submit">Unir PDFs</button>
+    </form>
+    {# A mensagem de erro/sucesso será exibida aqui #}
+    {% if mensagem %}
+        <p class="{{ 'error' if 'erro' in mensagem or 'Nenhum' in mensagem else 'success' }}">{{ mensagem }}</p>
+    {% endif %}
+</body>
+</html>

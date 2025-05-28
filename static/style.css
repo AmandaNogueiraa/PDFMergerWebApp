@@ -1,0 +1,96 @@
+/* static/style.css */
+body {
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    background-color: #e0f2f7; /* Um azul claro suave */
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh; /* Ocupa a altura total da tela */
+    margin: 0;
+    padding: 20px;
+    box-sizing: border-box; /* Garante que padding não cause overflow */
+}
+
+h1 {
+    color: #007bb6; /* Um azul mais escuro */
+    margin-bottom: 30px;
+    font-size: 2.5em;
+    text-shadow: 1px 1px 2px rgba(0,0,0,0.1);
+}
+
+form {
+    background-color: #ffffff;
+    padding: 40px 50px;
+    border-radius: 12px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    align-items: center;
+    width: 100%;
+    max-width: 450px; /* Limita a largura do formulário */
+    box-sizing: border-box;
+}
+
+label {
+    font-size: 1.1em;
+    color: #555;
+    margin-bottom: 5px;
+}
+
+input[type="file"] {
+    border: 2px solid #a7d9f0;
+    padding: 12px;
+    border-radius: 8px;
+    width: calc(100% - 24px); /* Subtrai o padding */
+    background-color: #f8fcff;
+    cursor: pointer;
+    transition: border-color 0.3s ease;
+}
+
+input[type="file"]:hover {
+    border-color: #007bb6;
+}
+
+button {
+    background-color: #007bff; /* Azul vibrante */
+    color: white;
+    padding: 12px 25px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 1.2em;
+    font-weight: bold;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+button:hover {
+    background-color: #0056b3; /* Azul mais escuro no hover */
+    transform: translateY(-2px); /* Pequeno efeito de elevação */
+}
+
+p {
+    margin-top: 25px;
+    padding: 15px 25px;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 1.1em;
+    width: 100%;
+    max-width: 450px;
+    text-align: center;
+    box-sizing: border-box;
+}
+
+p.error {
+    background-color: #ffeded; /* Fundo vermelho claro */
+    color: #d8000c; /* Texto vermelho escuro */
+    border: 1px solid #d8000c;
+}
+
+p.success {
+    background-color: #eaffec; /* Fundo verde claro */
+    color: #008000; /* Texto verde escuro */
+    border: 1px solid #008000;
+}
