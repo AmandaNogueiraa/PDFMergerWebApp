@@ -11,33 +11,35 @@
 }
 
 body {
-    font-family: 'Roboto', sans-serif; /* Usando a fonte Roboto do Google Fonts */
+    font-family: 'Roboto', sans-serif;
     background-color: var(--ilovepdf-light-gray);
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start; /* Ajustado para começar do topo */
     min-height: 100vh;
     margin: 0;
-    color: var(--ilovepdf-text-dark); /* Cor de texto padrão */
+    color: var(--ilovepdf-text-dark);
 }
 
 /* Estilo do card principal da aplicação */
 .app-card {
-    border: none; /* Remover borda padrão do Bootstrap */
-    border-radius: 8px; /* Cantos levemente arredondados */
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15); /* Sombra mais pronunciada */
+    border: none;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     background-color: #fff;
-    max-width: 550px; /* Largura máxima para o cartão principal */
+    max-width: 550px;
     width: 100%;
-    padding: 40px !important; /* Mais padding interno */
+    padding: 40px !important;
+    margin-top: 50px; /* Garante que o card não fique escondido sob a navbar */
+    margin-bottom: 50px; /* Garante espaço na parte de baixo */
 }
 
 /* Título principal H1 da página */
 .app-title {
-    color: var(--ilovepdf-red); /* Título na cor principal */
-    font-weight: 700; /* Negrito */
-    font-size: 2.5rem; /* Tamanho maior */
+    color: var(--ilovepdf-red);
+    font-weight: 700;
+    font-size: 2.5rem;
     margin-bottom: 30px;
 }
 
@@ -58,7 +60,7 @@ body {
     cursor: pointer;
     width: 100%;
     height: 100%;
-    z-index: 2; /* Para garantir que o input seja clicável */
+    z-index: 2;
 }
 
 .custom-file-label {
@@ -67,9 +69,9 @@ body {
     align-items: center;
     justify-content: center;
     padding: 40px 20px;
-    border: 3px dashed var(--ilovepdf-red); /* Borda tracejada na cor principal */
+    border: 3px dashed var(--ilovepdf-red);
     border-radius: 8px;
-    background-color: rgba(229, 50, 45, 0.05); /* Um fundo muito leve da cor principal */
+    background-color: rgba(229, 50, 45, 0.05);
     color: var(--ilovepdf-red);
     cursor: pointer;
     transition: background-color 0.3s ease, border-color 0.3s ease;
@@ -79,7 +81,7 @@ body {
 }
 
 .custom-file-label:hover {
-    background-color: rgba(229, 50, 45, 0.1); /* Mais escuro no hover */
+    background-color: rgba(229, 50, 45, 0.1);
     border-color: var(--ilovepdf-red-dark);
 }
 
@@ -90,15 +92,15 @@ body {
 
 /* Estilo para o campo de nome do arquivo (input type="text") */
 .form-control {
-    border-radius: 5px; /* Cantos levemente arredondados para campos de texto */
-    border-color: var(--ilovepdf-medium-gray); /* Cor de borda suave */
-    box-shadow: none; /* Remover sombra padrão do Bootstrap para input */
+    border-radius: 5px;
+    border-color: var(--ilovepdf-medium-gray);
+    box-shadow: none;
     transition: border-color 0.3s ease;
 }
 
 .form-control:focus {
-    border-color: var(--ilovepdf-red); /* Borda na cor principal ao focar */
-    box-shadow: 0 0 0 0.25rem rgba(229, 50, 45, 0.25); /* Sombra suave na cor principal */
+    border-color: var(--ilovepdf-red);
+    box-shadow: 0 0 0 0.25rem rgba(229, 50, 45, 0.25);
 }
 
 /* Botão principal (Juntar PDFs, Dividir PDFs) */
@@ -115,7 +117,7 @@ body {
 .main-button:hover {
     background-color: var(--ilovepdf-red-dark);
     border-color: var(--ilovepdf-red-dark);
-    transform: translateY(-2px); /* Pequeno efeito de elevação */
+    transform: translateY(-2px);
 }
 
 /* Estilos para mensagens de alerta (Bootstrap) */
@@ -131,37 +133,13 @@ body {
     border-color: #c3e6cb;
 }
 
-/* Responsividade básica para telas menores */
-@media (max-width: 576px) {
-    .app-card {
-        padding: 20px !important;
-        margin-top: 20px;
-    }
-    .app-title {
-        font-size: 2rem;
-    }
-    .main-button {
-        font-size: 1rem;
-        padding: 10px 20px;
-    }
-    .custom-file-label {
-        font-size: 0.9rem;
-        padding: 20px 10px;
-    }
-    .custom-file-label svg {
-        width: 30px;
-        height: 30px;
-    }
-}
-
 /* Estilo para as opções de rádio (dividir PDF) */
 .form-check {
-    padding-left: 0; /* Remover padding padrão do Bootstrap */
+    padding-left: 0;
     margin-bottom: 10px;
 }
 
 .form-check-input {
-    /* Esconder o rádio padrão */
     position: absolute;
     opacity: 0;
     cursor: pointer;
@@ -171,59 +149,54 @@ body {
 
 .form-check-label {
     position: relative;
-    padding: 10px 15px 10px 40px; /* Padding para o texto e espaço para o rádio customizado */
+    padding: 10px 15px 10px 40px;
     cursor: pointer;
     font-size: 1rem;
-    background-color: var(--ilovepdf-medium-gray); /* Fundo cinza claro */
+    background-color: var(--ilovepdf-medium-gray);
     border: 1px solid var(--ilovepdf-medium-gray);
     border-radius: 5px;
-    display: block; /* Para ocupar a largura total do container */
+    display: block;
     text-align: left;
     transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-check-label:hover {
-    background-color: #e0e0e0; /* Um pouco mais escuro no hover */
+    background-color: #e0e0e0;
     border-color: #d0d0d0;
 }
 
-/* Criar o círculo customizado para o rádio */
 .form-check-label::before {
     content: '';
     position: absolute;
-    left: 15px; /* Posição do círculo */
+    left: 15px;
     top: 50%;
     transform: translateY(-50%);
     width: 20px;
     height: 20px;
-    border: 2px solid var(--ilovepdf-red); /* Borda na cor principal */
+    border: 2px solid var(--ilovepdf-red);
     border-radius: 50%;
     background-color: #fff;
     box-sizing: border-box;
     transition: all 0.2s ease;
 }
 
-/* Estilo do círculo customizado quando o rádio está marcado */
 .form-check-input:checked + .form-check-label::before {
-    background-color: var(--ilovepdf-red); /* Preencher na cor principal */
+    background-color: var(--ilovepdf-red);
     border-color: var(--ilovepdf-red);
-    box-shadow: 0 0 0 4px rgba(229, 50, 45, 0.2); /* Sombra para indicar seleção */
+    box-shadow: 0 0 0 4px rgba(229, 50, 45, 0.2);
 }
 
-/* Efeito no label quando o rádio está marcado */
 .form-check-input:checked + .form-check-label {
-    background-color: rgba(229, 50, 45, 0.1); /* Fundo suave na cor principal */
-    border-color: var(--ilovepdf-red); /* Borda na cor principal */
+    background-color: rgba(229, 50, 45, 0.1);
+    border-color: var(--ilovepdf-red);
 }
 
-/* Estilo do input de intervalo de páginas */
 #page_range {
     margin-top: 15px;
 }
 
-/* Ajustes para o texto de "Como deseja dividir?" */
 .form-label {
-    font-weight: 700; /* Mais negrito para o label */
+    font-weight: 700;
     color: var(--ilovepdf-text-dark);
     margin-bottom: 10px;
 }
@@ -231,40 +204,121 @@ body {
 /* --- ESTILOS DA BARRA DE NAVEGAÇÃO SUPERIOR (Navbar) --- */
 
 .navbar {
-    background-color: #fff !important; /* Fundo branco para a navbar */
-    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Sombra leve */
-    padding: 1rem 1.5rem; /* Padding para a navbar */
+    background-color: #fff !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+    padding: 0.5rem 1.5rem; /* Ajuste o padding vertical */
+    position: fixed; /* Fixa a navbar no topo */
+    width: 100%;
+    top: 0;
+    left: 0;
+    z-index: 1000; /* Garante que ela fique acima de outros elementos */
 }
 
 .navbar-brand {
-    color: var(--ilovepdf-red) !important; /* Cor do logo/marca */
+    color: var(--ilovepdf-red) !important;
     font-weight: 700;
-    font-size: 1.8rem; /* Tamanho maior para o logo */
+    font-size: 1.8rem;
 }
 
 .nav-link {
-    color: var(--ilovepdf-text-dark) !important; /* Cor do texto dos links */
+    color: var(--ilovepdf-text-dark) !important;
     font-weight: 500;
     font-size: 1.1rem;
-    padding: 0.5rem 1rem !important; /* Padding para os links */
+    padding: 0.5rem 1rem !important;
     transition: color 0.2s ease, background-color 0.2s ease;
-    border-radius: 5px; /* Cantos arredondados para o hover/active */
+    border-radius: 5px;
 }
 
 .nav-link:hover {
-    color: var(--ilovepdf-red) !important; /* Cor do link no hover */
-    background-color: rgba(229, 50, 45, 0.05); /* Fundo suave na cor principal */
+    color: var(--ilovepdf-red) !important;
+    background-color: rgba(229, 50, 45, 0.05);
 }
 
 .nav-link.active {
-    color: var(--ilovepdf-red) !important; /* Cor do link ativo */
+    color: var(--ilovepdf-red) !important;
     font-weight: 700 !important;
-    background-color: rgba(229, 50, 45, 0.1); /* Fundo mais pronunciado para o link ativo */
+    background-color: rgba(229, 50, 45, 0.1);
+}
+
+.navbar-toggler {
+    border-color: rgba(0,0,0,.1); /* Borda mais suave para o botão hamburguer */
+}
+
+.navbar-toggler-icon {
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 30 30'%3e%3cpath stroke='rgba%28229, 50, 45, 0.8%29' stroke-linecap='round' stroke-miterlimit='10' stroke-width='2' d='M4 7h22M4 15h22M4 23h22'/%3e%3c/svg%3e") !important;
 }
 
 /* Ajuste para o app-title-small se ele for usado em outro lugar */
 .app-title-small {
     color: var(--ilovepdf-red);
     font-weight: 700;
-    font-size: 1.5rem; /* Ajuste o tamanho conforme desejar */
+    font-size: 1.5rem;
+}
+
+/* Novo ajuste para o wrapper principal de conteúdo */
+.main-content-wrapper {
+    padding-top: 100px; /* Espaço para a navbar fixa */
+    min-height: 100vh; /* Garante que ocupe a altura total da viewport */
+    display: flex;
+    flex-direction: column;
+    justify-content: center; /* Centraliza o card verticalmente */
+    align-items: center; /* Centraliza o card horizontalmente */
+}
+
+/* Responsividade geral */
+@media (max-width: 768px) { /* Para tablets e telas menores */
+    .navbar-brand {
+        font-size: 1.5rem;
+    }
+    .nav-link {
+        font-size: 1rem;
+    }
+    .app-title {
+        font-size: 2.2rem;
+    }
+    .app-card {
+        padding: 30px !important;
+        margin-top: 30px;
+        margin-bottom: 30px;
+    }
+    .custom-file-label {
+        font-size: 1rem;
+        padding: 30px 15px;
+    }
+    .custom-file-label svg {
+        width: 40px;
+        height: 40px;
+    }
+    .main-button {
+        font-size: 1.1rem;
+        padding: 10px 20px;
+    }
+    .main-content-wrapper {
+        padding-top: 80px; /* Ajuste para navbar em telas menores */
+        min-height: auto; /* Deixa a altura se adaptar ao conteúdo */
+    }
+    body {
+        justify-content: flex-start; /* Alinha ao topo em mobile */
+    }
+}
+
+@media (max-width: 576px) { /* Para celulares */
+    .app-card {
+        padding: 15px !important;
+    }
+    .app-title {
+        font-size: 1.8rem;
+    }
+    .main-button {
+        font-size: 1rem;
+        padding: 8px 15px;
+    }
+    .custom-file-label {
+        font-size: 0.85rem;
+        padding: 20px 10px;
+    }
+    .custom-file-label svg {
+        width: 25px;
+        height: 25px;
+    }
 }
