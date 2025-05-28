@@ -148,3 +148,8 @@ body {
         height: 30px;
     }
 }
+ .app-title-small {
+    color: var(--ilovepdf-red);
+    font-weight: 700;
+    font-size: 1.5rem; /* Ajuste o tamanho conforme desejar */
+}
