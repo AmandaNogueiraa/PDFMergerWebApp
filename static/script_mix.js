@@ -1,8 +1,7 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // Função de setup reutilizável para múltiplos uploads de arquivo único
     function setupFileUpload(uploadAreaId, fileInputId) {
-        const uploadArea = document.getElementById(uploadAreaId); // A div custom-file-upload
-        const fileInput = document.getElementById(fileInputId); // O input type="file"
+        const uploadArea = document.getElementById(uploadAreaId);
+        const fileInput = document.getElementById(fileInputId);
         const initialState = uploadArea.querySelector('.initial-state');
         const selectedFileState = uploadArea.querySelector('.selected-file-state');
         const fileNameDisplay = selectedFileState.querySelector('.file-name');
@@ -11,7 +10,7 @@ document.addEventListener('DOMContentLoaded', () => {
         function showInitialState() {
             initialState.style.display = 'flex';
             selectedFileState.style.display = 'none';
-            fileInput.value = ''; // Limpa o input file
+            fileInput.value = '';
             uploadArea.classList.remove('has-file');
         }
 
@@ -22,14 +21,13 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadArea.classList.add('has-file');
         }
 
-        // ***** NOVO: Listener de clique na área de upload com verificação de alvo *****
+        // ***** NOVO: Listener de clique na área de upload. Este será o ÚNICO a abrir o seletor. *****
+        // Remover o 'for' do label no HTML é crucial para que este listener controle.
         uploadArea.addEventListener('click', (event) => {
-            // Se o clique veio do botão de remover, não faça nada aqui
             if (event.target === removeFileButton) {
-                console.log(`Clique no botão de remover detectado em ${uploadAreaId}. Ignorando abertura do seletor.`);
+                console.log(`Clique no botão de remover detectado em ${uploadAreaId}. Não abrimos o seletor.`);
                 return;
             }
-            // Caso contrário, aciona o seletor de arquivos (o label já faz isso, mas é uma garantia)
             fileInput.click();
             console.log(`Área de upload clicada em ${uploadAreaId}. Acionando seletor de arquivos.`);
         });
@@ -69,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         removeFileButton.addEventListener('click', (event) => {
-            event.stopPropagation(); // ESSENCIAL: Previne que o clique no botão suba para a label
+            event.stopPropagation(); // ESSENCIAL: Previne que o clique no botão suba para a área de upload
             console.log(`Botão de remover clicado em ${uploadAreaId}. Resetando estado.`);
             showInitialState();
         });
@@ -77,7 +75,6 @@ document.addEventListener('DOMContentLoaded', () => {
         showInitialState();
     }
 
-    // Chamar a função de setup para as duas áreas de upload
     setupFileUpload('mainPdfUpload', 'main_pdf_file');
     setupFileUpload('sourcePdfUpload', 'source_pdf_file');
 });

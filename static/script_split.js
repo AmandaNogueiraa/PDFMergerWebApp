@@ -13,9 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Lógica para o upload de arquivo único
-    const uploadArea = document.getElementById('splitPdfUpload'); // A div custom-file-upload
-    const fileInput = document.getElementById('pdf_file'); // O input type="file"
+    const uploadArea = document.getElementById('splitPdfUpload');
+    const fileInput = document.getElementById('pdf_file');
     const initialState = uploadArea.querySelector('.initial-state');
     const selectedFileState = uploadArea.querySelector('.selected-file-state');
     const fileNameDisplay = selectedFileState.querySelector('.file-name');
@@ -24,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function showInitialState() {
         initialState.style.display = 'flex';
         selectedFileState.style.display = 'none';
-        fileInput.value = ''; // Limpa o input file
+        fileInput.value = '';
         uploadArea.classList.remove('has-file');
     }
 
@@ -35,14 +34,13 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadArea.classList.add('has-file');
     }
 
-    // ***** NOVO: Listener de clique na área de upload com verificação de alvo *****
+    // ***** NOVO: Listener de clique na área de upload. Este será o ÚNICO a abrir o seletor. *****
+    // Remover o 'for' do label no HTML é crucial para que este listener controle.
     uploadArea.addEventListener('click', (event) => {
-        // Se o clique veio do botão de remover, não faça nada aqui
         if (event.target === removeFileButton) {
-            console.log("Clique no botão de remover detectado em Split. Ignorando abertura do seletor.");
+            console.log("Clique no botão de remover detectado em Split. Não abrimos o seletor.");
             return;
         }
-        // Caso contrário, aciona o seletor de arquivos (o label já faz isso, mas é uma garantia)
         fileInput.click();
         console.log("Área de upload clicada em Split. Acionando seletor de arquivos.");
     });
@@ -79,10 +77,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 showInitialState();
             }
         }
-    }); 
+    });
 
     removeFileButton.addEventListener('click', (event) => {
-        event.stopPropagation(); // ESSENCIAL: Previne que o clique no botão suba para a label
+        event.stopPropagation(); // ESSENCIAL: Previne que o clique no botão suba para a área de upload
         console.log("Botão de remover clicado em Split. Resetando estado.");
         showInitialState();
     });

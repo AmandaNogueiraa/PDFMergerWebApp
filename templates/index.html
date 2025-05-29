@@ -90,7 +90,7 @@
                     <label for="pdf_files" class="form-label upload-label">Selecione os arquivos PDF:</label>
                     <div class="custom-file-upload" id="joinPdfUpload">
                         <input type="file" id="pdf_files" name="pdfs[]" accept=".pdf" multiple required>
-                        <label for="pdf_files" class="custom-file-label d-flex flex-column align-items-center justify-content-center">
+                        <label class="custom-file-label d-flex flex-column align-items-center justify-content-center">
                             <div class="initial-state">
                                 <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
                                     <path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z"/>
@@ -122,7 +122,7 @@
                 <button type="submit" class="btn btn-primary btn-lg w-100 main-button">Juntar PDFs</button>
             </form>
             {% if mensagem %}
-                <div class="alert {{ 'alert-danger' if 'erro' in mensagem or 'Nenhum' in mensagem else 'alert-success' }} mt-3" role="alert">
+                <div class="alert {{ 'alert-danger' if 'erro' in mensagem else 'alert-success' }} mt-3" role="alert">
                     {{ mensagem }}
                 </div>
             {% endif %}
