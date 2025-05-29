@@ -267,7 +267,7 @@ body {
 
 /* NOVO: Estilo para a imagem da logo na navbar */
 .navbar-brand .logo-img {
-    height: 35px; /* Ajuste este valor para o tamanho desejado da logo */
+    height: 60px; /* Ajuste este valor para o tamanho desejado da logo */
     vertical-align: middle; /* Alinha a logo verticalmente com o texto (se houver) */
 }
 
