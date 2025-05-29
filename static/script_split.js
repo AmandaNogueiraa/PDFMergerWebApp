@@ -35,16 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadArea.classList.add('has-file');
     }
 
-    // Removendo o listener de click direto no uploadArea para evitar duplicação.
-    // O input[type="file"] já está dentro do label, e o label está usando 'for' no input.
-    // Clicar no label já ativa o input.
-    // uploadArea.addEventListener('click', (event) => {
-    //     if (event.target === removeFileButton) {
-    //         return;
-    //     }
-    //     fileInput.click();
-    // });
-
     fileInput.addEventListener('change', (event) => {
         const file = event.target.files[0];
         if (file) {
@@ -80,7 +70,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     removeFileButton.addEventListener('click', (event) => {
-        event.stopPropagation(); // MUITO IMPORTANTE: Previne que o clique no botão suba para o label
+        event.stopPropagation(); // ESSENCIAL: Previne que o clique no botão suba para a label
         showInitialState();
     });
 

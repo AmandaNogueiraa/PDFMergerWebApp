@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             removeButton.title = `Remover ${file.name}`;
 
             removeButton.addEventListener('click', (event) => {
-                event.stopPropagation(); // Previne que o clique suba para a label/área de upload
+                event.stopPropagation(); // ESSENCIAL: Previne que o clique no 'X' suba
                 console.log(`Removendo arquivo no índice: ${index}, nome: ${file.name}`);
                 removeFileByIndex(index);
             });
@@ -117,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Botão "Limpar tudo"
     removeAllFilesButton.addEventListener('click', (event) => {
-        event.stopPropagation(); // Previne que o clique suba para a área de upload
+        event.stopPropagation(); // ESSENCIAL: Previne que o clique no botão suba para a área de upload
         console.log("Botão 'Limpar tudo' clicado.");
         selectedFilesDataTransfer = new DataTransfer(); // Reseta DataTransfer para uma lista vazia
         fileInput.value = ''; // Limpa o valor do input hidden
