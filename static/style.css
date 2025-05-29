@@ -63,6 +63,7 @@ body {
     z-index: 2;
 }
 
+/* Estilo para o label que simula a área de drop */
 .custom-file-label {
     display: flex;
     flex-direction: column;
@@ -78,6 +79,8 @@ body {
     font-weight: 700;
     font-size: 1.1rem;
     line-height: 1.5;
+    min-height: 180px; /* Garante altura mínima para os estados */
+    box-sizing: border-box; /* Inclui padding e borda na altura */
 }
 
 .custom-file-label:hover {
@@ -88,6 +91,52 @@ body {
 .custom-file-label svg {
     margin-bottom: 15px;
     color: var(--ilovepdf-red);
+}
+
+/* NOVO: Estado de arrastar e soltar (drag-over) */
+.custom-file-upload.drag-over .custom-file-label {
+    background-color: rgba(229, 50, 45, 0.15);
+    border-color: var(--ilovepdf-red-dark);
+    box-shadow: 0 0 10px rgba(229, 50, 45, 0.4);
+}
+
+/* NOVO: Estado inicial (visível por padrão) */
+.custom-file-label .initial-state {
+    display: block;
+    text-align: center;
+}
+
+/* NOVO: Estado de arquivo selecionado (escondido por padrão) */
+.custom-file-label .selected-file-state {
+    display: none; /* Escondido por padrão, JavaScript vai mostrar */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+}
+
+.custom-file-label .selected-file-state .file-name {
+    font-weight: 700;
+    color: var(--ilovepdf-text-dark);
+    margin-bottom: 10px;
+    word-break: break-all; /* Quebra palavras longas */
+    padding: 0 10px; /* Um pouco de padding para não grudar nas bordas */
+}
+
+.custom-file-label .selected-file-state .remove-file-button {
+    background-color: var(--ilovepdf-red);
+    color: white;
+    border: none;
+    padding: 8px 15px;
+    border-radius: 5px;
+    cursor: pointer;
+    font-weight: 500;
+    transition: background-color 0.2s ease;
+}
+
+.custom-file-label .selected-file-state .remove-file-button:hover {
+    background-color: var(--ilovepdf-red-dark);
 }
 
 /* Estilo para o campo de nome do arquivo (input type="text") */
