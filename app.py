@@ -1,24 +1,26 @@
 # app.py
-
-# ... (imports existentes) ...
-from flask import Flask, render_template, request, send_file, redirect, url_for, session, jsonify # Adicionado 'session', 'jsonify'
+from flask import Flask, render_template, request, send_file, redirect, url_for, session, jsonify
 import PyPDF2
 import os
 import io
 import re
 import zipfile
-import uuid # Para gerar IDs únicos de tarefa
-import threading # Para rodar o processamento em segundo plano
+import uuid
+import threading
+import time # Importado para usar time.sleep()
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads' 
-app.config['SECRET_KEY'] = 'uma_chave_secreta_muito_segura_e_longa_aqui' # ADICIONE UMA CHAVE SECRETA REAL E COMPLEXA!
+
+# !!! ATENÇÃO: SUBSTITUA ESTA CHAVE POR UMA CHAVE SECRETA REAL E COMPLEXA !!!
+# Você pode gerar uma usando import os; os.urandom(24).hex() no terminal Python.
+app.config['SECRET_KEY'] = 'SUA_CHAVE_SECRETA_REAL_AQUI_E_MUITO_LONGA_E_COMPLEXA' 
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
 
 # Dicionário global para armazenar o progresso das tarefas
-# Em um ambiente de produção real, isso seria um cache como Redis ou um banco de dados
+# Em um ambiente de produção real, isso seria um cache como Redis ou um banco de dados (ex: Celery com Redis/RabbitMQ)
 task_progress = {}
 
 # Função auxiliar para parsear string de intervalo de páginas (reutilizada)
@@ -62,16 +64,30 @@ def perform_pdf_merge(task_id, files_data, desired_filename):
 
     try:
         total_files = len(files_data)
+        
+        # Simular o progresso do anexo de arquivos
         for i, file_data in enumerate(files_data):
-            # Recria o stream do arquivo a partir dos dados em BytesIO
             pdf_stream = io.BytesIO(file_data)
             merger.append(pdf_stream)
             pdf_streams.append(pdf_stream)
             
-            # Atualiza o progresso
-            progress_percent = int(((i + 1) / total_files) * 90) # Vai até 90% para deixar 10% para a escrita
+            # Calcula o progresso. Usa 90% para deixar 10% para a etapa final de escrita.
+            # Garante que o progresso não vá além de 90% antes da escrita final.
+            progress_percent = int(((i + 1) / total_files) * 90)
+            if progress_percent > 90:
+                progress_percent = 90
             task_progress[task_id]['progress'] = progress_percent
-            print(f"Task {task_id}: Progress {progress_percent}%") # Para depuração
+            print(f"Task {task_id}: Progress {progress_percent}% - file {i+1}/{total_files}")
+            
+            # Adiciona um pequeno atraso para que o frontend tenha tempo de fazer polling
+            time.sleep(0.2) 
+            
+        # Simular o progresso da escrita do PDF final (os últimos 10%)
+        # Esta parte é uma estimativa, já que PyPDF2.write() não tem progresso interno
+        task_progress[task_id]['progress'] = 95
+        time.sleep(0.5) # Atraso adicional antes da escrita final
+        print(f"Task {task_id}: Progress 95% - writing output.")
+
 
         output_pdf_stream = io.BytesIO()
         merger.write(output_pdf_stream)
@@ -82,18 +98,18 @@ def perform_pdf_merge(task_id, files_data, desired_filename):
         task_progress[task_id]['status'] = 'completed'
         task_progress[task_id]['result'] = output_pdf_stream.getvalue() # Armazena o PDF final em bytes
         task_progress[task_id]['filename'] = desired_filename
-        print(f"Task {task_id}: Completed.") # Para depuração
+        print(f"Task {task_id}: Completed.")
 
     except Exception as e:
         task_progress[task_id]['status'] = 'failed'
         task_progress[task_id]['error'] = str(e)
-        print(f"Task {task_id}: Failed with error: {e}") # Para depuração
+        print(f"Task {task_id}: Failed with error: {e}")
     finally:
         merger.close()
         for ps in pdf_streams:
             ps.close()
 
-# Rota principal para unir PDFs (já existente)
+# Rota principal para unir PDFs
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -101,18 +117,22 @@ def index():
 @app.route('/unir', methods=['POST'])
 def unir_pdfs():
     if 'pdfs[]' not in request.files:
-        return render_template('index.html', mensagem="Nenhum arquivo enviado!")
+        return jsonify({'mensagem': "Nenhum arquivo enviado!"}), 400
 
     files = request.files.getlist('pdfs[]')
     if not files or all(f.filename == '' for f in files):
-        return render_template('index.html', mensagem="Nenhum arquivo PDF selecionado para unir.")
+        return jsonify({'mensagem': "Nenhum arquivo PDF selecionado para unir."}), 400
 
     # Gera um ID único para esta tarefa
     task_id = str(uuid.uuid4())
     
     # Armazena os dados dos arquivos em memória (para passar para o thread)
+    # Filter out empty or non-PDF files here to avoid issues
     files_data = [file.read() for file in files if file and file.filename.endswith('.pdf')]
     
+    if not files_data: # If no valid PDF files were provided
+        return jsonify({'mensagem': "Nenhum arquivo PDF válido foi selecionado."}), 400
+
     nome_arquivo_desejado = request.form.get('nome_arquivo')
     if nome_arquivo_desejado:
         nome_arquivo_desejado = re.sub(r'[\\/:*?"<>|]', '', nome_arquivo_desejado)
@@ -128,7 +148,7 @@ def unir_pdfs():
     thread.start()
 
     # Retorna o ID da tarefa para o frontend, que usará para verificar o progresso
-    return jsonify({'task_id': task_id}), 202 # Retorna 202 Accepted, indicando que a requisição foi aceita mas o processamento está pendente
+    return jsonify({'task_id': task_id}), 202 # Retorna 202 Accepted
 
 # NOVA ROTA: Verificar progresso da tarefa
 @app.route('/status/<task_id>')
@@ -140,12 +160,12 @@ def task_status(task_id):
     # Se a tarefa falhou, remove-a após informar o erro
     if task['status'] == 'failed':
         error_message = task['error']
-        del task_progress[task_id] # Limpa a tarefa após o erro
+        # Não deleta imediatamente, deixa o frontend ter chance de pegar o erro
+        # del task_progress[task_id] 
         return jsonify({'status': 'failed', 'progress': task['progress'], 'error': error_message})
     
-    # Se a tarefa completou, remove o resultado após entregá-lo para download
-    # O resultado em si será recuperado por outra rota de download
-    if task['status'] == 'completed' and task['result'] is not None:
+    # Se a tarefa completou, informa para o frontend que pode iniciar o download
+    if task['status'] == 'completed':
         return jsonify({'status': 'completed', 'progress': 100})
     
     return jsonify({'status': task['status'], 'progress': task['progress']})
@@ -158,7 +178,8 @@ def download_file(task_id):
         output_pdf_stream = io.BytesIO(task['result'])
         download_name = task['filename']
         
-        # Remove a tarefa e seus dados após o download
+        # Remove a tarefa e seus dados após o download para liberar memória
+        # Isso é crucial para evitar que o dicionário task_progress cresça indefinidamente
         del task_progress[task_id]
         
         return send_file(output_pdf_stream,
@@ -169,7 +190,7 @@ def download_file(task_id):
         return "Arquivo não encontrado ou processamento não concluído.", 404
 
 
-# Rotas para Divisor de PDF (já existente, sem barra de progresso por enquanto)
+# Rotas para Divisor de PDF (já existentes, sem barra de progresso)
 @app.route('/dividir')
 def dividir_pdf_page():
     return render_template('split.html')
@@ -246,8 +267,7 @@ def dividir_pdf_post():
             input_pdf_stream.close()
 
 
-# --- NOVAS ROTAS E FUNÇÕES PARA MISTURAR PDFs ---
-
+# --- Rotas e Funções para Misturar PDFs ---
 @app.route('/mix_pdf')
 def mix_pdf_page():
     return render_template('mix_pdf.html')
@@ -296,7 +316,7 @@ def mix_pdf_post():
 
         # Adicionar páginas do PDF principal antes do ponto de inserção
         for i in range(insert_index):
-            if i < main_total_pages: # Evita erro se insert_index > main_total_pages
+            if i < main_total_pages:
                 pdf_writer.add_page(main_pdf_reader.pages[i])
 
         # Adicionar páginas do PDF de origem
@@ -332,7 +352,6 @@ def mix_pdf_post():
             main_pdf_stream.close()
         if 'source_pdf_stream' in locals() and source_pdf_stream:
             source_pdf_stream.close()
-
 
 if __name__ == '__main__':
     app.run(debug=True)
