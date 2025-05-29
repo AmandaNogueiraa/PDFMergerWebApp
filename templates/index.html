@@ -45,7 +45,34 @@
             border-bottom: none;
         }
 
-        /* Removido o estilo do .remove-single-file daqui, pois o botão será removido do JS */
+        /* Novas regras para layout em desktop */
+        @media (min-width: 769px) {
+            .app-card .row {
+                align-items: flex-start; /* Alinha o conteúdo das colunas ao topo */
+            }
+
+            .app-card .col-md-6:first-child {
+                border-right: 1px solid var(--ilovepdf-medium-gray); /* Separador visual entre as colunas */
+                padding-right: 25px; /* Espaço para o separador */
+            }
+
+            .app-card .col-md-6:last-child {
+                padding-left: 25px; /* Espaço para o separador */
+            }
+
+            /* Ajusta a altura da área de upload para desktop */
+            #joinPdfUpload .custom-file-label {
+                min-height: 350px; /* Altura fixa para a área de upload no desktop */
+            }
+
+            /* Esconde o texto "Arquivos selecionados:" para otimizar espaço quando a lista de arquivos estiver ao lado */
+            .custom-file-label .selected-file-state p {
+                display: none;
+            }
+            .file-list-container {
+                margin-top: 0; /* Remove a margem superior já que estará em outra coluna */
+            }
+        }
     </style>
 </head>
 <body>
@@ -74,36 +101,44 @@
         <div class="card p-4 shadow-lg text-center app-card">
             <h1 class="mb-4 app-title">Juntar PDFs</h1>
             <form action="/unir" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
-                <div class="mb-3">
-                    <label class="form-label upload-label">Selecione os arquivos PDF:</label>
-                    <div class="custom-file-upload" id="joinPdfUpload">
-                        <input type="file" id="pdf_files" name="pdfs[]" accept=".pdf" multiple required>
-                        <label class="custom-file-label d-flex flex-column align-items-center justify-content-center">
-                            <div class="initial-state">
-                                <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
-                                    <path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z"/>
-                                    <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1 2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-1z"/>
-                                </svg>
-                                <span>Arraste e solte seus PDFs aqui</span>
-                                <span>ou clique para selecionar</span>
+                <div class="row"> <div class="col-md-6"> <div class="mb-3">
+                            <label class="form-label upload-label">Selecione os arquivos PDF:</label>
+                            <div class="custom-file-upload" id="joinPdfUpload">
+                                <input type="file" id="pdf_files" name="pdfs[]" accept=".pdf" multiple required>
+                                <label class="custom-file-label d-flex flex-column align-items-center justify-content-center">
+                                    <div class="initial-state">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="50" height="50" fill="currentColor" class="bi bi-file-earmark-plus" viewBox="0 0 16 16">
+                                            <path d="M8 6.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V10a.5.5 0 0 1-1 0V8.5H6a.5.5 0 0 1 0-1h1.5V7a.5.5 0 0 1 .5-.5z"/>
+                                            <path d="M14 4.5V14a2 2 0 0 1-2 2H4a2 2 0 0 1 2-2V2a2 2 0 0 1 2-2h5.5L14 4.5zm-3 0A1.5.5 0 0 1 9.5 3V1H4a1 1 0 0 0-1 1v12a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V4.5h-1z"/>
+                                        </svg>
+                                        <span>Arraste e solte seus PDFs aqui</span>
+                                        <span>ou clique para selecionar</span>
+                                    </div>
+                                    <div class="selected-file-state">
+                                        <p>Arquivos selecionados:</p>
+                                        <div class="file-list-container">
+                                            <ul class="file-list" id="selectedFilesList">
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </label>
                             </div>
-                            <div class="selected-file-state">
-                                <p>Arquivos selecionados:</p>
-                                <div class="file-list-container">
-                                    <ul class="file-list" id="selectedFilesList">
-                                        </ul>
-                                </div>
-                                </div>
-                        </label>
+                            <div class="invalid-feedback">
+                                Por favor, selecione os arquivos PDF.
+                            </div>
+                        </div>
                     </div>
-                    <div class="invalid-feedback">
-                        Por favor, selecione os arquivos PDF.
-                    </div>
-                </div>
 
-                <div class="mb-3">
-                    <label for="nome_arquivo" class="form-label">Nome do arquivo de saída (opcional):</label>
-                    <input type="text" class="form-control" id="nome_arquivo" name="nome_arquivo" placeholder="Ex: meus_pdfs_unidos">
+                    <div class="col-md-6 d-flex flex-column justify-content-between"> <div class="mb-3 flex-grow-1"> <label class="form-label upload-label">Arquivos para unir:</label>
+                            <div class="file-list-container">
+                                <ul class="file-list" id="selectedFilesListDesktop"> </ul>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 mt-auto"> <label for="nome_arquivo" class="form-label">Nome do arquivo de saída (opcional):</label>
+                            <input type="text" class="form-control" id="nome_arquivo" name="nome_arquivo" placeholder="Ex: meus_pdfs_unidos">
+                        </div>
+                    </div>
                 </div>
 
                 <button type="submit" class="btn btn-primary btn-lg w-100 main-button">Juntar PDFs</button>

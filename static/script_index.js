@@ -1,40 +1,44 @@
 document.addEventListener('DOMContentLoaded', () => {
     const uploadArea = document.getElementById('joinPdfUpload');
     const fileInput = document.getElementById('pdf_files');
-    const customFileLabel = uploadArea.querySelector('.custom-file-label'); // Seleciona o label
+    const customFileLabel = uploadArea.querySelector('.custom-file-label');
     const initialState = uploadArea.querySelector('.initial-state');
     const selectedFileState = uploadArea.querySelector('.selected-file-state');
-    const selectedFilesList = document.getElementById('selectedFilesList');
-    // REMOVIDO: const removeAllFilesButton = selectedFileState.querySelector('.remove-file-button'); // Botão "Limpar tudo" foi removido do HTML e JS
+
+    // As duas listas de arquivos: uma para visualização mobile (dentro do upload-label), outra para desktop (na coluna lateral)
+    const selectedFilesListMobile = document.getElementById('selectedFilesList'); // A lista original dentro do label
+    const selectedFilesListDesktop = document.getElementById('selectedFilesListDesktop'); // A nova lista na coluna lateral
 
     let selectedFilesDataTransfer = new DataTransfer();
 
     function updateFileList() {
-        selectedFilesList.innerHTML = ''; // Limpa a lista visual atual
+        // Limpa ambas as listas visuais
+        selectedFilesListMobile.innerHTML = '';
+        selectedFilesListDesktop.innerHTML = '';
 
-        // Se não há arquivos, mostra o estado inicial
+        // Se não há arquivos, mostra o estado inicial da área de upload
         if (selectedFilesDataTransfer.items.length === 0) {
             initialState.style.display = 'flex';
             selectedFileState.style.display = 'none';
-            fileInput.value = '';
+            fileInput.value = ''; // Reseta o input de arquivo
             console.log("Lista de arquivos vazia. Input file resetado.");
-            return;
+            return; // Sai da função
         }
 
         // Se há arquivos, mostra o estado de arquivos selecionados
         initialState.style.display = 'none';
-        selectedFileState.style.display = 'flex';
+        selectedFileState.style.display = 'flex'; // Isso é para o selected-file-state dentro do custom-file-label (mobile)
 
-        Array.from(selectedFilesDataTransfer.files).forEach((file, index) => {
-            const listItem = document.createElement('li');
-            listItem.textContent = file.name;
-            // Botão 'X' de remoção individual removido completamente do JS
-            // const removeButton = document.createElement('button');
-            // removeButton.classList.add('remove-single-file');
-            // removeButton.innerHTML = '&times;';
-            // removeButton.title = `Remover ${file.name}`;
-            // removeButton.addEventListener('click', (event) => { /* ... */ });
-            // listItem.appendChild(removeButton);
+        Array.from(selectedFilesDataTransfer.files).forEach((file) => {
+            // Cria item para a lista Mobile
+            const listItemMobile = document.createElement('li');
+            listItemMobile.textContent = file.name;
+            selectedFilesListMobile.appendChild(listItemMobile);
+
+            // Cria item para a lista Desktop
+            const listItemDesktop = document.createElement('li');
+            listItemDesktop.textContent = file.name;
+            selectedFilesListDesktop.appendChild(listItemDesktop);
         });
 
         console.log("Lista visual atualizada. Arquivos em DataTransfer:", selectedFilesDataTransfer.files);
@@ -58,16 +62,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (filesAdded) {
             fileInput.files = selectedFilesDataTransfer.files;
-            updateFileList();
+            updateFileList(); // Atualiza a lista visual após adicionar arquivos
         }
     }
 
-    // Função removeFileByIndex não é mais necessária, pois não há botões de remoção
-    // function removeFileByIndex(indexToRemove) { /* ... */ }
-
     customFileLabel.addEventListener('click', (event) => {
-        // Nenhuma verificação de 'remove-single-file' ou 'removeAllFilesButton' é necessária aqui,
-        // pois esses botões não são mais criados/esperados.
+        // Aciona o clique no input de arquivo.
         fileInput.click();
         console.log("Label clicada. Acionando seletor de arquivos.");
     });
@@ -94,8 +94,6 @@ document.addEventListener('DOMContentLoaded', () => {
         addFiles(event.dataTransfer.files);
     });
 
-    // O botão "Limpar tudo" e seu listener foram removidos
-    // removeAllFilesButton.addEventListener('click', ...);
-
-    updateFileList(); // Inicializa a lista ao carregar a página
+    // Chama updateFileList uma vez para configurar o estado inicial ao carregar a página
+    updateFileList();
 });

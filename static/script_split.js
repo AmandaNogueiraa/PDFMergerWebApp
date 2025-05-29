@@ -15,14 +15,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const uploadArea = document.getElementById('splitPdfUpload');
     const fileInput = document.getElementById('pdf_file');
-    const customFileLabel = uploadArea.querySelector('.custom-file-label'); // Seleciona o label
+    const customFileLabel = uploadArea.querySelector('.custom-file-label');
     const initialState = uploadArea.querySelector('.initial-state');
     const selectedFileState = uploadArea.querySelector('.selected-file-state');
     const fileNameDisplay = selectedFileState.querySelector('.file-name');
-    // const removeFileButton = selectedFileState.querySelector('.remove-file-button'); // Botão "Remover" individual removido
 
     function showInitialState() {
-        initialState.style.display = 'flex';
+        initialState.style.display = 'flex'; // Garante que o initial-state use flex para alinhamento
         selectedFileState.style.display = 'none';
         fileInput.value = '';
         uploadArea.classList.remove('has-file');
@@ -36,7 +35,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     customFileLabel.addEventListener('click', (event) => {
-        // Nenhuma verificação de botão de remover é necessária, pois ele não existe mais.
         fileInput.click();
         console.log("Label clicada em Split. Acionando seletor de arquivos.");
     });
@@ -75,6 +73,5 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    // removeFileButton.addEventListener('click', ...); // Event listener removido
-    showInitialState();
+    showInitialState(); // Garante que o estado inicial seja configurado ao carregar
 });

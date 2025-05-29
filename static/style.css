@@ -28,7 +28,7 @@ body {
     border-radius: 8px;
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
     background-color: #fff;
-    max-width: 550px;
+    max-width: 550px; /* Largura padrão para mobile */
     width: 100%;
     padding: 40px !important;
     margin-top: 50px; /* Garante que o card não fique escondido sob a navbar */
@@ -99,9 +99,14 @@ body {
 
 /* NOVO: Estado inicial (visível por padrão) */
 .custom-file-label .initial-state {
-    display: block;
+    display: flex; /* Alterado para flex */
+    flex-direction: column; /* Alterado para column */
+    align-items: center; /* Centraliza itens */
+    justify-content: center; /* Centraliza itens */
     text-align: center;
+    width: 100%; /* Garante que ocupe o espaço */
 }
+
 
 /* NOVO: Estado de arquivo selecionado (escondido por padrão) */
 .custom-file-label .selected-file-state {
@@ -318,6 +323,43 @@ body {
     align-items: center; /* Centraliza o card horizontalmente */
 }
 
+/* Estilos específicos para a lista de arquivos no index.html */
+.file-list-container {
+    margin-top: 15px;
+    text-align: left;
+    width: 100%;
+}
+
+.file-list-container h6 {
+    color: var(--ilovepdf-text-dark);
+    font-weight: 700;
+    margin-bottom: 10px;
+}
+
+.file-list {
+    list-style: none;
+    padding: 0;
+    max-height: 200px; /* Limita a altura e adiciona scroll se muitos arquivos */
+    overflow-y: auto;
+    border: 1px solid var(--ilovepdf-medium-gray);
+    border-radius: 5px;
+    background-color: #fff;
+}
+
+.file-list li {
+    padding: 8px 15px;
+    border-bottom: 1px solid var(--ilovepdf-medium-gray);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.95rem;
+    color: var(--ilovepdf-text-light);
+}
+
+.file-list li:last-child {
+    border-bottom: none;
+}
+
 /* Responsividade geral */
 @media (max-width: 768px) { /* Para tablets e telas menores */
     .navbar-brand {
@@ -373,5 +415,35 @@ body {
     .custom-file-label svg {
         width: 25px;
         height: 25px;
+    }
+}
+
+/* --- MEDIA QUERIES PARA DESKTOP --- */
+/* A partir de 769px (ou outro breakpoint que você prefira para desktop) */
+@media (min-width: 769px) {
+    .app-card {
+        max-width: 900px; /* Aumenta a largura máxima do card para desktop */
+        padding: 50px !important; /* Mais padding no desktop */
+    }
+
+    .main-content-wrapper {
+        padding-top: 120px; /* Mais espaço para a navbar em desktop */
+        /* Centraliza o card verticalmente em telas maiores */
+        justify-content: center;
+    }
+
+    /* Ocultar "Arraste e solte seus PDFs aqui ou clique para selecionar" */
+    .custom-file-label .initial-state span:first-of-type {
+        display: none; /* Oculta a primeira linha de texto do initial-state */
+    }
+
+    .custom-file-label .initial-state span:nth-of-type(2) {
+        margin-top: 5px; /* Adiciona um pouco de margem para o texto restante */
+    }
+
+    /* Ajusta tamanho do SVG para desktop */
+    .custom-file-label svg {
+        width: 70px;
+        height: 70px;
     }
 }
