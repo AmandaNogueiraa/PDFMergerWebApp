@@ -126,13 +126,6 @@ body {
     padding: 0 10px; /* Um pouco de padding para não grudar nas bordas */
 }
 
-/* Regra para esconder o botão "X" de remoção individual REMOVIDA,
-   pois o botão será removido do JavaScript dinamicamente.
-   .custom-file-label .selected-file-state .remove-single-file {
-       display: none !important;
-   }
-*/
-
 .custom-file-label .selected-file-state .remove-file-button {
     background-color: var(--ilovepdf-red);
     color: white;
@@ -272,10 +265,19 @@ body {
     z-index: 1000; /* Garante que ela fique acima de outros elementos */
 }
 
+/* NOVO: Estilo para a imagem da logo na navbar */
+.navbar-brand .logo-img {
+    height: 35px; /* Ajuste este valor para o tamanho desejado da logo */
+    vertical-align: middle; /* Alinha a logo verticalmente com o texto (se houver) */
+}
+
+
 .navbar-brand {
-    color: var(--ilovepdf-red) !important;
+    color: var(--ilovepdf-red) !important; /* Mantém a cor do texto se houver */
     font-weight: 700;
     font-size: 1.8rem;
+    display: flex; /* Adicionado para alinhar a imagem da logo */
+    align-items: center; /* Centraliza a imagem da logo verticalmente */
 }
 
 .nav-link {
