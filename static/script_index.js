@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
             removeButton.title = `Remover ${file.name}`;
 
             removeButton.addEventListener('click', (event) => {
-                event.stopPropagation(); // ESSENCIAL: Previne que o clique no 'X' suba
+                event.stopPropagation(); // MUITO IMPORTANTE: Previne que o clique no 'X' suba
                 console.log(`Removendo arquivo no índice: ${index}, nome: ${file.name}`);
                 removeFileByIndex(index);
             });
@@ -91,6 +91,23 @@ document.addEventListener('DOMContentLoaded', () => {
         console.log("Arquivo removido. Novo estado do input.files:", fileInput.files);
         updateFileList(); // Atualiza a lista visual
     }
+
+    // ***** NOVO: Listener de clique na área de upload com verificação de alvo *****
+    uploadArea.addEventListener('click', (event) => {
+        // Verifica se o clique veio de um dos botões de remoção ou do botão "Limpar tudo"
+        if (event.target.classList.contains('remove-single-file') || event.target === removeAllFilesButton) {
+            console.log("Clique em botão de remoção/limpeza detectado. Ignorando abertura do seletor.");
+            // Não fazemos nada aqui, o listener específico do botão já cuidou do stopPropagation
+            // e da lógica de remoção/limpeza.
+            return; 
+        }
+
+        // Se o clique não foi em um botão de remoção/limpeza, então aciona o seletor de arquivos.
+        // O `label` pai já aciona o input por padrão do HTML, mas essa linha é uma garantia.
+        fileInput.click(); 
+        console.log("Área de upload clicada. Acionando seletor de arquivos.");
+    });
+
 
     // Evento change para o input de arquivo (disparado ao selecionar via clique)
     fileInput.addEventListener('change', (event) => {
