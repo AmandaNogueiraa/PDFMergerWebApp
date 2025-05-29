@@ -99,7 +99,7 @@
                                 <span>Arraste e solte seus PDFs aqui</span>
                                 <span>ou clique para selecionar</span>
                             </div>
-                            <div class="selected-file-state" style="display: none;">
+                            <div class="selected-file-state">
                                 <p>Arquivos selecionados:</p>
                                 <div class="file-list-container">
                                     <ul class="file-list" id="selectedFilesList">
@@ -131,109 +131,6 @@
 
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.11.8/dist/umd/popper.min.js" integrity="sha384-I7E8VVD/ismYTF4hNIPjVpZVoxMfooAo" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.min.js" integrity="sha384-BBtl+eGJRgqQAUMxJ7pMwbEyER4l1g+O15P+16Ep7Q9Q+zqX6gSbd85u4mG4Q" crossorigin="anonymous"></script>
-
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const uploadArea = document.getElementById('joinPdfUpload');
-            const fileInput = document.getElementById('pdf_files');
-            const initialState = uploadArea.querySelector('.initial-state');
-            const selectedFileState = uploadArea.querySelector('.selected-file-state');
-            const selectedFilesList = document.getElementById('selectedFilesList');
-            const removeAllFilesButton = selectedFileState.querySelector('.remove-file-button');
-
-            // Armazenar os arquivos selecionados para manipulação
-            let selectedFiles = new DataTransfer();
-
-            function updateFileList() {
-                selectedFilesList.innerHTML = ''; // Limpa a lista existente
-                if (selectedFiles.items.length === 0) {
-                    initialState.style.display = 'flex';
-                    selectedFileState.style.display = 'none';
-                    return;
-                }
-
-                initialState.style.display = 'none';
-                selectedFileState.style.display = 'flex';
-
-                Array.from(selectedFiles.files).forEach((file, index) => {
-                    const listItem = document.createElement('li');
-                    listItem.textContent = file.name;
-                    const removeButton = document.createElement('button');
-                    removeButton.classList.add('remove-single-file');
-                    removeButton.innerHTML = '&times;'; // Caractere 'X'
-                    removeButton.title = `Remover ${file.name}`;
-                    removeButton.addEventListener('click', (event) => {
-                        event.stopPropagation(); // Previne clique no label
-                        removeFileByIndex(index);
-                    });
-                    listItem.appendChild(removeButton);
-                    selectedFilesList.appendChild(listItem);
-                });
-            }
-
-            function addFiles(files) {
-                Array.from(files).forEach(file => {
-                    // Verifica se o arquivo já foi adicionado para evitar duplicatas visuais
-                    const isDuplicate = Array.from(selectedFiles.files).some(existingFile => 
-                        existingFile.name === file.name && existingFile.size === file.size && existingFile.lastModified === file.lastModified
-                    );
-                    if (!isDuplicate && file.type === 'application/pdf') {
-                        selectedFiles.items.add(file);
-                    } else if (file.type !== 'application/pdf') {
-                        alert(`O arquivo "${file.name}" não é um PDF e será ignorado.`);
-                    }
-                });
-                fileInput.files = selectedFiles.files; // Atualiza o input original
-                updateFileList();
-            }
-
-            function removeFileByIndex(indexToRemove) {
-                selectedFiles.items.remove(indexToRemove);
-                fileInput.files = selectedFiles.files; // Atualiza o input original
-                updateFileList();
-            }
-
-            // Clicar na área de upload abre o seletor de arquivos
-            uploadArea.addEventListener('click', (event) => {
-                // Se clicou em um botão de remover, não abra o seletor
-                if (event.target.classList.contains('remove-single-file') || event.target === removeAllFilesButton) {
-                    return;
-                }
-                fileInput.click();
-            });
-
-            // Quando arquivos são selecionados via input
-            fileInput.addEventListener('change', (event) => {
-                addFiles(event.target.files);
-            });
-
-            // Lógica de Drag and Drop
-            uploadArea.addEventListener('dragover', (event) => {
-                event.preventDefault();
-                uploadArea.classList.add('drag-over');
-            });
-
-            uploadArea.addEventListener('dragleave', () => {
-                uploadArea.classList.remove('drag-over');
-            });
-
-            uploadArea.addEventListener('drop', (event) => {
-                event.preventDefault();
-                uploadArea.classList.remove('drag-over');
-                addFiles(event.dataTransfer.files);
-            });
-
-            // Botão "Limpar tudo"
-            removeAllFilesButton.addEventListener('click', (event) => {
-                event.stopPropagation(); // Previne que o clique suba para a área de upload
-                selectedFiles = new DataTransfer(); // Reseta DataTransfer
-                fileInput.value = ''; // Limpa o input hidden (importante para o formulário)
-                updateFileList();
-            });
-
-            // Inicializar a lista
-            updateFileList();
-        });
-    </script>
+    <script src="{{ url_for('static', filename='script_index.js') }}"></script>
 </body>
 </html>
