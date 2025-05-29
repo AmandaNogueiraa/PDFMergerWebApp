@@ -348,18 +348,64 @@ body {
     background-color: #fff;
 }
 
+/* NOVO: Estilos para os itens da lista de arquivos (arrastar e soltar) */
 .file-list li {
     padding: 8px 15px;
     border-bottom: 1px solid var(--ilovepdf-medium-gray);
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    display: flex; /* Garante que os itens internos fiquem em linha */
+    justify-content: space-between; /* Espaça o nome do arquivo do botão */
+    align-items: center; /* Centraliza verticalmente */
     font-size: 0.95rem;
     color: var(--ilovepdf-text-light);
+    cursor: grab; /* Altera o cursor para indicar que é arrastável */
+    transition: background-color 0.2s ease; /* Transição suave */
+}
+
+.file-list li:hover {
+    background-color: var(--ilovepdf-medium-gray); /* Fundo ao passar o mouse */
+}
+
+.file-list li.dragging {
+    opacity: 0.5; /* Efeito ao arrastar */
+    background-color: var(--ilovepdf-medium-gray);
+    border: 1px dashed var(--ilovepdf-red);
 }
 
 .file-list li:last-child {
     border-bottom: none;
+}
+
+/* Estilos para o ícone de handle (para arrastar) */
+.file-list li .drag-handle {
+    margin-right: 10px; /* Espaço entre o handle e o nome do arquivo */
+    cursor: grab;
+    color: var(--ilovepdf-text-light);
+    font-size: 0.9em;
+}
+
+.file-list li .drag-handle:hover {
+    color: var(--ilovepdf-red);
+}
+
+/* Estilos para o nome do arquivo */
+.file-list li .file-name-text {
+    flex-grow: 1; /* Ocupa o espaço restante */
+    word-break: break-all; /* Quebra palavras longas */
+}
+
+/* Estilos para o botão de remover arquivo */
+.file-list li .remove-file-btn {
+    background: none;
+    border: none;
+    color: var(--ilovepdf-text-light);
+    cursor: pointer;
+    font-size: 1.1em;
+    margin-left: 10px; /* Espaço entre o nome e o botão */
+    transition: color 0.2s ease;
+}
+
+.file-list li .remove-file-btn:hover {
+    color: var(--ilovepdf-red);
 }
 
 /* Responsividade geral */
@@ -396,6 +442,10 @@ body {
     }
     body {
         justify-content: flex-start; /* Alinha ao topo em mobile */
+    }
+    /* NOVO: Esconde o texto "Arquivos selecionados:" para mobile também, se a lista for o display principal */
+    .custom-file-label .selected-file-state p {
+        display: none;
     }
 }
 

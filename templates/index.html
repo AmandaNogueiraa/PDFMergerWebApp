@@ -7,6 +7,7 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
         /* Estilos específicos para a lista de arquivos no index.html */
         .file-list-container {
@@ -39,6 +40,7 @@
             align-items: center;
             font-size: 0.95rem;
             color: var(--ilovepdf-text-light);
+            /* Cursor e transição serão adicionados no style.css */
         }
 
         .file-list li:last-child {
@@ -169,7 +171,7 @@
                                         <p>Arquivos selecionados:</p>
                                         <div class="file-list-container">
                                             <ul class="file-list" id="selectedFilesList">
-                                            </ul>
+                                                </ul>
                                         </div>
                                     </div>
                                 </label>
@@ -182,10 +184,10 @@
 
                     <div class="col-md-6 d-flex flex-column justify-content-between">
                         <div class="mb-3 flex-grow-1">
-                            <label class="form-label upload-label">Arquivos para unir:</label>
+                            <label class="form-label upload-label">Arquivos para unir (Arraste para reordenar):</label>
                             <div class="file-list-container">
                                 <ul class="file-list" id="selectedFilesListDesktop">
-                                </ul>
+                                    </ul>
                             </div>
                         </div>
 

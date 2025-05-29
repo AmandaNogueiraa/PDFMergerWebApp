@@ -17,15 +17,19 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let selectedFilesDataTransfer = new DataTransfer();
     let pollingInterval; // Variável para armazenar o ID do intervalo de polling
+    let draggedItem = null; // Para o drag-and-drop
 
+    // Função para atualizar a lista de arquivos na UI
     function updateFileList() {
         selectedFilesListMobile.innerHTML = '';
         selectedFilesListDesktop.innerHTML = '';
 
-        if (selectedFilesDataTransfer.items.length === 0) {
+        const filesArray = Array.from(selectedFilesDataTransfer.files);
+
+        if (filesArray.length === 0) {
             initialState.style.display = 'flex';
             selectedFileState.style.display = 'none';
-            fileInput.value = '';
+            fileInput.value = ''; // Limpa o input file real
             console.log("Lista de arquivos vazia. Input file resetado.");
             return;
         }
@@ -33,19 +37,110 @@ document.addEventListener('DOMContentLoaded', () => {
         initialState.style.display = 'none';
         selectedFileState.style.display = 'flex';
 
-        Array.from(selectedFilesDataTransfer.files).forEach((file) => {
-            const listItemMobile = document.createElement('li');
-            listItemMobile.textContent = file.name;
-            selectedFilesListMobile.appendChild(listItemMobile);
+        filesArray.forEach((file, index) => {
+            const createListItem = (listElement) => {
+                const listItem = document.createElement('li');
+                listItem.setAttribute('draggable', 'true'); // Torna o item arrastável
+                listItem.dataset.index = index; // Armazena o índice atual do item
 
-            const listItemDesktop = document.createElement('li');
-            listItemDesktop.textContent = file.name;
-            selectedFilesListDesktop.appendChild(listItemDesktop);
+                listItem.innerHTML = `
+                    <i class="fas fa-grip-vertical drag-handle" title="Arraste para reordenar"></i>
+                    <span class="file-name-text">${file.name}</span>
+                    <button type="button" class="remove-file-btn" title="Remover arquivo">
+                        <i class="fas fa-times"></i>
+                    </button>
+                `;
+
+                // Event listener para o botão de remover
+                listItem.querySelector('.remove-file-btn').addEventListener('click', (event) => {
+                    event.stopPropagation(); // Evita que o clique se propague para o item da lista
+                    removeFile(parseInt(listItem.dataset.index)); // Usa o dataset.index atual
+                });
+
+                // Lógica de Drag-and-Drop (para cada item da lista)
+                listItem.addEventListener('dragstart', (e) => {
+                    draggedItem = listItem;
+                    e.dataTransfer.effectAllowed = 'move';
+                    // Adiciona um pequeno atraso para a classe 'dragging' ser aplicada
+                    setTimeout(() => {
+                        listItem.classList.add('dragging');
+                    }, 0);
+                });
+
+                listItem.addEventListener('dragenter', (e) => {
+                    e.preventDefault();
+                    if (draggedItem && draggedItem !== listItem) {
+                        // Verifica a posição do mouse para decidir onde inserir
+                        const bounding = listItem.getBoundingClientRect();
+                        const offset = bounding.y + (bounding.height / 2);
+                        if (e.clientY < offset) {
+                            listItem.classList.remove('drag-over-bottom');
+                            listItem.classList.add('drag-over-top');
+                        } else {
+                            listItem.classList.remove('drag-over-top');
+                            listItem.classList.add('drag-over-bottom');
+                        }
+                    }
+                });
+
+                listItem.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    e.dataTransfer.dropEffect = 'move';
+                });
+
+                listItem.addEventListener('dragleave', () => {
+                    listItem.classList.remove('drag-over-top', 'drag-over-bottom');
+                });
+
+                listItem.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    listItem.classList.remove('drag-over-top', 'drag-over-bottom');
+                    if (draggedItem && draggedItem !== listItem) {
+                        const draggedIndex = parseInt(draggedItem.dataset.index);
+                        const targetIndex = parseInt(listItem.dataset.index);
+
+                        // Decide se insere antes ou depois baseado na posição do mouse
+                        const bounding = listItem.getBoundingClientRect();
+                        const offset = bounding.y + (bounding.height / 2);
+                        let newTargetIndex = targetIndex;
+                        if (e.clientY > offset && draggedIndex < targetIndex) {
+                            // Se arrastou para a metade inferior e o item arrastado já estava acima do alvo
+                            // Mantém o targetIndex (insere depois do alvo)
+                        } else if (e.clientY <= offset && draggedIndex > targetIndex) {
+                             // Se arrastou para a metade superior e o item arrastado já estava abaixo do alvo
+                            // Mantém o targetIndex (insere antes do alvo)
+                        } else if (e.clientY > offset && draggedIndex > targetIndex) {
+                            // Se arrastou para a metade inferior e o item arrastado já estava abaixo do alvo
+                            newTargetIndex = targetIndex + 1; // Insere depois do alvo
+                        }
+                         // else if (e.clientY <= offset && draggedIndex < targetIndex) {
+                         //    newTargetIndex = targetIndex; // Insere antes do alvo
+                         // }
+
+
+                        if (draggedIndex !== newTargetIndex) {
+                            reorderFiles(draggedIndex, newTargetIndex);
+                        }
+                    }
+                });
+
+                listItem.addEventListener('dragend', () => {
+                    draggedItem.classList.remove('dragging');
+                    draggedItem = null;
+                    document.querySelectorAll('.file-list li').forEach(item => {
+                        item.classList.remove('drag-over-top', 'drag-over-bottom');
+                    });
+                });
+
+                listElement.appendChild(listItem);
+            };
+
+            createListItem(selectedFilesListMobile); // Adiciona para a lista mobile
+            createListItem(selectedFilesListDesktop); // Adiciona para a lista desktop
         });
-
-        console.log("Lista visual atualizada. Arquivos em DataTransfer:", selectedFilesDataTransfer.files);
     }
 
+    // Função para adicionar arquivos, checando duplicatas e tipo
     function addFiles(filesToAdd) {
         let filesAdded = false;
         Array.from(filesToAdd).forEach(file => {
@@ -58,16 +153,54 @@ document.addEventListener('DOMContentLoaded', () => {
                 filesAdded = true;
                 console.log("Arquivo adicionado ao DataTransfer:", file.name);
             } else if (file.type !== 'application/pdf') {
-                alert(`O arquivo "${file.name}" não é um PDF e será ignorado.`);
+                showMessage(`O arquivo "${file.name}" não é um PDF e será ignorado.`, "danger");
             }
         });
 
         if (filesAdded) {
-            fileInput.files = selectedFilesDataTransfer.files;
-            updateFileList();
+            fileInput.files = selectedFilesDataTransfer.files; // Atualiza o FileList do input real
+            updateFileList(); // Renderiza a UI
         }
     }
 
+    // Função para remover um arquivo pelo índice
+    function removeFile(indexToRemove) {
+        const currentFiles = Array.from(selectedFilesDataTransfer.files);
+        const newFiles = new DataTransfer();
+        currentFiles.forEach((file, index) => {
+            if (index !== indexToRemove) {
+                newFiles.items.add(file);
+            }
+        });
+        selectedFilesDataTransfer = newFiles;
+        fileInput.files = selectedFilesDataTransfer.files; // Atualiza o FileList do input real
+        updateFileList(); // Renderiza a UI
+        console.log(`Arquivo no índice ${indexToRemove} removido.`);
+    }
+
+    // Função para reordenar arquivos
+    function reorderFiles(oldIndex, newIndex) {
+        const filesArray = Array.from(selectedFilesDataTransfer.files);
+        const [movedItem] = filesArray.splice(oldIndex, 1);
+        
+        // Ajusta newIndex se o item estiver sendo movido para uma posição anterior
+        // e já tiver passado por ela
+        if (oldIndex < newIndex) {
+            newIndex = newIndex -1;
+        }
+
+        filesArray.splice(newIndex, 0, movedItem);
+
+        const newFilesDataTransfer = new DataTransfer();
+        filesArray.forEach(file => newFilesDataTransfer.items.add(file));
+        selectedFilesDataTransfer = newFilesDataTransfer;
+
+        fileInput.files = selectedFilesDataTransfer.files; // Atualiza o FileList do input real
+        updateFileList(); // Renderiza a UI
+        console.log(`Arquivos reordenados de ${oldIndex} para ${newIndex}.`);
+    }
+
+    // Funções de mensagem e UI reset (mantidas como estão)
     function showMessage(message, type) {
         statusMessage.textContent = message;
         statusMessage.className = `alert mt-3 alert-${type}`; // Bootstrap class
@@ -86,10 +219,11 @@ document.addEventListener('DOMContentLoaded', () => {
         progressStatus.textContent = 'Processando...';
         mergeButton.disabled = false;
         hideMessage();
-        // Não reseta os arquivos selecionados, o usuário pode querer tentar novamente
-        // ou a página já atualiza ao fazer o download.
+        // Não reseta os arquivos selecionados automaticamente aqui, 
+        // a limpeza acontece após o download bem-sucedido.
     }
 
+    // Event Listeners (mantidos como estão, mas agora chamando as novas funções)
     customFileLabel.addEventListener('click', (event) => {
         fileInput.click();
         console.log("Label clicada. Acionando seletor de arquivos.");
@@ -116,27 +250,27 @@ document.addEventListener('DOMContentLoaded', () => {
         addFiles(event.dataTransfer.files);
     });
 
-    // Intercepta o envio do formulário
+    // Intercepta o envio do formulário (mantido como está, mas agora `fileInput.files` já está atualizado)
     mergeForm.addEventListener('submit', async (event) => {
-        event.preventDefault(); // Impede o envio tradicional do formulário
+        event.preventDefault();
 
-        hideMessage(); // Esconde qualquer mensagem anterior
+        hideMessage();
 
-        // Validação básica se há arquivos selecionados
         if (selectedFilesDataTransfer.items.length === 0) {
             showMessage("Por favor, selecione pelo menos um arquivo PDF.", "danger");
             return;
         }
 
-        mergeButton.disabled = true; // Desabilita o botão para evitar múltiplos envios
-        progressBarContainer.style.display = 'block'; // Mostra a barra de progresso
+        mergeButton.disabled = true;
+        progressBarContainer.style.display = 'block';
         progressBar.style.width = '0%';
         progressBar.setAttribute('aria-valuenow', '0');
         progressBar.textContent = '0%';
         progressStatus.textContent = 'Enviando arquivos...';
 
         const formData = new FormData();
-        Array.from(selectedFilesDataTransfer.files).forEach(file => {
+        // Os arquivos já estão no `fileInput.files` na ordem correta
+        Array.from(fileInput.files).forEach(file => { 
             formData.append('pdfs[]', file);
         });
         const nomeArquivo = document.getElementById('nome_arquivo').value;
@@ -145,7 +279,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         try {
-            // Envia os arquivos para o Flask via AJAX
             const uploadResponse = await fetch('/unir', {
                 method: 'POST',
                 body: formData
@@ -160,7 +293,6 @@ document.addEventListener('DOMContentLoaded', () => {
             const taskId = data.task_id;
             progressStatus.textContent = 'Processando PDF...';
 
-            // Inicia o polling para verificar o status
             pollingInterval = setInterval(async () => {
                 const statusResponse = await fetch(`/status/${taskId}`);
                 const statusData = await statusResponse.json();
@@ -175,12 +307,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     progressStatus.textContent = 'Processamento concluído! Baixando arquivo...';
                     showMessage("PDFs unidos com sucesso!", "success");
                     
-                    // Inicia o download do arquivo
                     window.location.href = `/download/${taskId}`;
                     
-                    resetUI(); // Reseta a UI após o download
-                    selectedFilesDataTransfer = new DataTransfer(); // Limpa os arquivos selecionados
-                    updateFileList(); // Atualiza a lista visual
+                    // Limpa os arquivos selecionados e reseta a UI após o download
+                    selectedFilesDataTransfer = new DataTransfer();
+                    fileInput.files = selectedFilesDataTransfer.files; // Resetar input file
+                    updateFileList();
+                    resetUI();
                 } else if (statusData.status === 'failed') {
                     clearInterval(pollingInterval);
                     const errorMessage = statusData.error || "Ocorreu um erro no processamento.";
@@ -191,7 +324,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     showMessage("Tarefa não encontrada ou expirou.", "danger");
                     resetUI();
                 }
-            }, 2000); // Poll a cada 2 segundos
+            }, 2000);
 
         } catch (error) {
             console.error("Erro na operação:", error);
