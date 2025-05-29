@@ -1,8 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     // Função de setup reutilizável para múltiplos uploads de arquivo único
     function setupFileUpload(uploadAreaId, fileInputId) {
-        const uploadArea = document.getElementById(uploadAreaId);
-        const fileInput = document.getElementById(fileInputId);
+        const uploadArea = document.getElementById(uploadAreaId); // A div custom-file-upload
+        const fileInput = document.getElementById(fileInputId); // O input type="file"
         const initialState = uploadArea.querySelector('.initial-state');
         const selectedFileState = uploadArea.querySelector('.selected-file-state');
         const fileNameDisplay = selectedFileState.querySelector('.file-name');
@@ -22,12 +22,15 @@ document.addEventListener('DOMContentLoaded', () => {
             uploadArea.classList.add('has-file');
         }
 
-        uploadArea.addEventListener('click', (event) => {
-            if (event.target === removeFileButton) {
-                return;
-            }
-            fileInput.click();
-        });
+        // Removendo o listener de click direto no uploadArea para evitar duplicação.
+        // O input[type="file"] já está dentro do label, e o label está usando 'for' no input.
+        // Clicar no label já ativa o input.
+        // uploadArea.addEventListener('click', (event) => {
+        //     if (event.target === removeFileButton) {
+        //         return;
+        //     }
+        //     fileInput.click();
+        // });
 
         fileInput.addEventListener('change', (event) => {
             const file = event.target.files[0];
@@ -64,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
 
         removeFileButton.addEventListener('click', (event) => {
-            event.stopPropagation();
+            event.stopPropagation(); // MUITO IMPORTANTE: Previne que o clique no botão suba para o label
             showInitialState();
         });
 
