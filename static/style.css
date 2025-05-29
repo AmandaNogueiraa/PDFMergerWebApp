@@ -63,7 +63,6 @@ body {
     z-index: 2;
 }
 
-/* Estilo para o label que simula a área de drop */
 .custom-file-label {
     display: flex;
     flex-direction: column;
@@ -79,8 +78,6 @@ body {
     font-weight: 700;
     font-size: 1.1rem;
     line-height: 1.5;
-    min-height: 180px; /* Garante altura mínima para os estados */
-    box-sizing: border-box; /* Inclui padding e borda na altura */
 }
 
 .custom-file-label:hover {
@@ -124,13 +121,13 @@ body {
     padding: 0 10px; /* Um pouco de padding para não grudar nas bordas */
 }
 
-/* ESTILO NOVO: Esconder o botão de remoção individual "X" */
-.custom-file-label .selected-file-state .remove-single-file {
-    display: none !important; /* Esconde o botão completamente */
-}
+/* Regra para esconder o botão "X" de remoção individual REMOVIDA,
+   pois o botão será removido do JavaScript dinamicamente.
+   .custom-file-label .selected-file-state .remove-single-file {
+       display: none !important;
+   }
+*/
 
-/* Opcional: Se você ainda tiver o botão "Limpar tudo" no HTML, ele também seria afetado por .remove-file-button.
-   Se ele não está mais no HTML (como na nossa última atualização), essa regra não afetará nada. */
 .custom-file-label .selected-file-state .remove-file-button {
     background-color: var(--ilovepdf-red);
     color: white;

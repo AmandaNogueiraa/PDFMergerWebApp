@@ -36,7 +36,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     customFileLabel.addEventListener('click', (event) => {
-        // Não há botão de remover individual, então não precisamos verificar event.target === removeFileButton
+        // Nenhuma verificação de botão de remover é necessária, pois ele não existe mais.
         fileInput.click();
         console.log("Label clicada em Split. Acionando seletor de arquivos.");
     });
