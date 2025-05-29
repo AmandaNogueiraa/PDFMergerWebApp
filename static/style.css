@@ -124,6 +124,13 @@ body {
     padding: 0 10px; /* Um pouco de padding para não grudar nas bordas */
 }
 
+/* ESTILO NOVO: Esconder o botão de remoção individual "X" */
+.custom-file-label .selected-file-state .remove-single-file {
+    display: none !important; /* Esconde o botão completamente */
+}
+
+/* Opcional: Se você ainda tiver o botão "Limpar tudo" no HTML, ele também seria afetado por .remove-file-button.
+   Se ele não está mais no HTML (como na nossa última atualização), essa regra não afetará nada. */
 .custom-file-label .selected-file-state .remove-file-button {
     background-color: var(--ilovepdf-red);
     color: white;
