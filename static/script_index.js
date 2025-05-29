@@ -1,11 +1,11 @@
 document.addEventListener('DOMContentLoaded', () => {
     const uploadArea = document.getElementById('joinPdfUpload');
     const fileInput = document.getElementById('pdf_files');
-    const customFileLabel = uploadArea.querySelector('.custom-file-label');
+    const customFileLabel = uploadArea.querySelector('.custom-file-label'); // Seleciona o label
     const initialState = uploadArea.querySelector('.initial-state');
     const selectedFileState = uploadArea.querySelector('.selected-file-state');
     const selectedFilesList = document.getElementById('selectedFilesList');
-    const removeAllFilesButton = selectedFileState.querySelector('.remove-file-button');
+    // const removeAllFilesButton = selectedFileState.querySelector('.remove-file-button'); // Botão "Limpar tudo" removido
 
     let selectedFilesDataTransfer = new DataTransfer();
 
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
             removeButton.title = `Remover ${file.name}`;
 
             removeButton.addEventListener('click', (event) => {
-                event.stopPropagation(); // ESSENCIAL: Previne que o clique no 'X' suba
+                event.stopPropagation(); // Previne que o clique no 'X' suba
                 console.log(`Removendo arquivo no índice: ${index}, nome: ${file.name}`);
                 removeFileByIndex(index);
             });
@@ -84,10 +84,11 @@ document.addEventListener('DOMContentLoaded', () => {
         updateFileList();
     }
 
-    // Listener de clique diretamente no LABEL. Este é o ÚNICO a abrir o seletor.
     customFileLabel.addEventListener('click', (event) => {
-        if (event.target.classList.contains('remove-single-file') || event.target === removeAllFilesButton) {
-             console.log("Clique em botão de remoção/limpeza. Não abrimos o seletor.");
+        // ESSENCIAL: Garante que o clique na label só abra o seletor
+        // se o alvo não for um botão de remoção.
+        if (event.target.classList.contains('remove-single-file')) { // removeAllFilesButton não existe mais
+             console.log("Clique em botão de remoção. Não abrimos o seletor.");
              return;
         }
         fileInput.click();
@@ -116,20 +117,8 @@ document.addEventListener('DOMContentLoaded', () => {
         addFiles(event.dataTransfer.files);
     });
 
-    // ***** ALTERAÇÃO AQUI: Adicionando setTimeout para o botão Limpar tudo *****
-    removeAllFilesButton.addEventListener('click', (event) => {
-        event.stopPropagation(); // Essencial para parar a propagação imediata
-
-        // Adiciona um pequeno atraso para que a propagação seja realmente parada
-        // antes de tentar limpar e atualizar o DOM.
-        setTimeout(() => {
-            console.log("Botão 'Limpar tudo' clicado (após timeout).");
-            selectedFilesDataTransfer = new DataTransfer();
-            fileInput.value = '';
-            fileInput.files = selectedFilesDataTransfer.files;
-            updateFileList();
-        }, 50); // Atraso de 50 milissegundos
-    });
+    // Código do removeAllFilesButton.addEventListener REMOVIDO COMPLETAMENTE
+    // removeAllFilesButton.addEventListener('click', (event) => { /* ... */ });
 
     updateFileList();
 });
