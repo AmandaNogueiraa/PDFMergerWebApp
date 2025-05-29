@@ -1,23 +1,31 @@
 # app.py
-from flask import Flask, render_template, request, send_file, redirect, url_for
+
+# ... (imports existentes) ...
+from flask import Flask, render_template, request, send_file, redirect, url_for, session, jsonify # Adicionado 'session', 'jsonify'
 import PyPDF2
 import os
 import io
 import re
 import zipfile
+import uuid # Para gerar IDs únicos de tarefa
+import threading # Para rodar o processamento em segundo plano
 
 app = Flask(__name__)
 app.config['UPLOAD_FOLDER'] = 'uploads' 
+app.config['SECRET_KEY'] = 'uma_chave_secreta_muito_segura_e_longa_aqui' # ADICIONE UMA CHAVE SECRETA REAL E COMPLEXA!
 
 if not os.path.exists(app.config['UPLOAD_FOLDER']):
     os.makedirs(app.config['UPLOAD_FOLDER'])
+
+# Dicionário global para armazenar o progresso das tarefas
+# Em um ambiente de produção real, isso seria um cache como Redis ou um banco de dados
+task_progress = {}
 
 # Função auxiliar para parsear string de intervalo de páginas (reutilizada)
 def parse_page_ranges(page_range_str, total_pages, default_to_all=False):
     pages_to_process = []
     if not page_range_str and default_to_all:
-        return list(range(total_pages)) # Se vazio e default_to_all, retorna todas as páginas
-
+        return list(range(total_pages))
     parts = page_range_str.split(',')
     for part in parts:
         part = part.strip()
@@ -42,9 +50,48 @@ def parse_page_ranges(page_range_str, total_pages, default_to_all=False):
     
     if not pages_to_process and not default_to_all:
         raise ValueError("Nenhuma página válida especificada.")
+    return sorted(list(set(pages_to_process)))
 
-    return sorted(list(set(pages_to_process))) # Retorna páginas únicas e ordenadas
+# Função que executa a união de PDFs (agora em um thread separado)
+def perform_pdf_merge(task_id, files_data, desired_filename):
+    # Inicializa o progresso da tarefa
+    task_progress[task_id] = {'status': 'processing', 'progress': 0, 'result': None, 'error': None}
+    
+    merger = PyPDF2.PdfMerger()
+    pdf_streams = []
 
+    try:
+        total_files = len(files_data)
+        for i, file_data in enumerate(files_data):
+            # Recria o stream do arquivo a partir dos dados em BytesIO
+            pdf_stream = io.BytesIO(file_data)
+            merger.append(pdf_stream)
+            pdf_streams.append(pdf_stream)
+            
+            # Atualiza o progresso
+            progress_percent = int(((i + 1) / total_files) * 90) # Vai até 90% para deixar 10% para a escrita
+            task_progress[task_id]['progress'] = progress_percent
+            print(f"Task {task_id}: Progress {progress_percent}%") # Para depuração
+
+        output_pdf_stream = io.BytesIO()
+        merger.write(output_pdf_stream)
+        output_pdf_stream.seek(0)
+
+        # Finaliza o progresso
+        task_progress[task_id]['progress'] = 100
+        task_progress[task_id]['status'] = 'completed'
+        task_progress[task_id]['result'] = output_pdf_stream.getvalue() # Armazena o PDF final em bytes
+        task_progress[task_id]['filename'] = desired_filename
+        print(f"Task {task_id}: Completed.") # Para depuração
+
+    except Exception as e:
+        task_progress[task_id]['status'] = 'failed'
+        task_progress[task_id]['error'] = str(e)
+        print(f"Task {task_id}: Failed with error: {e}") # Para depuração
+    finally:
+        merger.close()
+        for ps in pdf_streams:
+            ps.close()
 
 # Rota principal para unir PDFs (já existente)
 @app.route('/')
@@ -60,43 +107,69 @@ def unir_pdfs():
     if not files or all(f.filename == '' for f in files):
         return render_template('index.html', mensagem="Nenhum arquivo PDF selecionado para unir.")
 
-    merger = PyPDF2.PdfMerger()
-    pdf_streams = [] 
-
-    try:
-        for file in files:
-            if file and file.filename.endswith('.pdf'):
-                pdf_stream = io.BytesIO(file.read())
-                merger.append(pdf_stream)
-                pdf_streams.append(pdf_stream)
-
-        output_pdf_stream = io.BytesIO()
-        merger.write(output_pdf_stream)
-        output_pdf_stream.seek(0)
-
-        nome_arquivo_desejado = request.form.get('nome_arquivo')
-        if nome_arquivo_desejado:
-            nome_arquivo_desejado = re.sub(r'[\\/:*?"<>|]', '', nome_arquivo_desejado)
-            if not nome_arquivo_desejado.lower().endswith('.pdf'):
-                nome_arquivo_final = f"{nome_arquivo_desejado}.pdf"
-            else:
-                nome_arquivo_final = nome_arquivo_desejado
+    # Gera um ID único para esta tarefa
+    task_id = str(uuid.uuid4())
+    
+    # Armazena os dados dos arquivos em memória (para passar para o thread)
+    files_data = [file.read() for file in files if file and file.filename.endswith('.pdf')]
+    
+    nome_arquivo_desejado = request.form.get('nome_arquivo')
+    if nome_arquivo_desejado:
+        nome_arquivo_desejado = re.sub(r'[\\/:*?"<>|]', '', nome_arquivo_desejado)
+        if not nome_arquivo_desejado.lower().endswith('.pdf'):
+            nome_arquivo_final = f"{nome_arquivo_desejado}.pdf"
         else:
-            nome_arquivo_final = "pdfs_unidos.pdf"
+            nome_arquivo_final = nome_arquivo_desejado
+    else:
+        nome_arquivo_final = "pdfs_unidos.pdf"
 
-        return send_file(output_pdf_stream, 
+    # Inicia o processamento do PDF em um thread separado
+    thread = threading.Thread(target=perform_pdf_merge, args=(task_id, files_data, nome_arquivo_final))
+    thread.start()
+
+    # Retorna o ID da tarefa para o frontend, que usará para verificar o progresso
+    return jsonify({'task_id': task_id}), 202 # Retorna 202 Accepted, indicando que a requisição foi aceita mas o processamento está pendente
+
+# NOVA ROTA: Verificar progresso da tarefa
+@app.route('/status/<task_id>')
+def task_status(task_id):
+    task = task_progress.get(task_id)
+    if task is None:
+        return jsonify({'status': 'not_found', 'progress': 0}), 404
+    
+    # Se a tarefa falhou, remove-a após informar o erro
+    if task['status'] == 'failed':
+        error_message = task['error']
+        del task_progress[task_id] # Limpa a tarefa após o erro
+        return jsonify({'status': 'failed', 'progress': task['progress'], 'error': error_message})
+    
+    # Se a tarefa completou, remove o resultado após entregá-lo para download
+    # O resultado em si será recuperado por outra rota de download
+    if task['status'] == 'completed' and task['result'] is not None:
+        return jsonify({'status': 'completed', 'progress': 100})
+    
+    return jsonify({'status': task['status'], 'progress': task['progress']})
+
+# NOVA ROTA: Baixar o arquivo final (após o processamento estar completo)
+@app.route('/download/<task_id>')
+def download_file(task_id):
+    task = task_progress.get(task_id)
+    if task and task['status'] == 'completed' and task['result'] is not None:
+        output_pdf_stream = io.BytesIO(task['result'])
+        download_name = task['filename']
+        
+        # Remove a tarefa e seus dados após o download
+        del task_progress[task_id]
+        
+        return send_file(output_pdf_stream,
                          mimetype='application/pdf',
                          as_attachment=True,
-                         download_name=nome_arquivo_final)
+                         download_name=download_name)
+    else:
+        return "Arquivo não encontrado ou processamento não concluído.", 404
 
-    except Exception as e:
-        return render_template('index.html', mensagem=f"Ocorreu um erro ao unir os PDFs: {e}")
-    finally:
-        merger.close()
-        for ps in pdf_streams:
-            ps.close()
 
-# Rotas para Divisor de PDF (já existente)
+# Rotas para Divisor de PDF (já existente, sem barra de progresso por enquanto)
 @app.route('/dividir')
 def dividir_pdf_page():
     return render_template('split.html')
@@ -164,6 +237,8 @@ def dividir_pdf_post():
 
     except ValueError as ve:
         return render_template('split.html', mensagem=f"Erro no intervalo de páginas: {ve}")
+    except PyPDF2.errors.PdfReadError:
+        return render_template('split.html', mensagem="Não foi possível ler o arquivo PDF. Verifique se está válido ou não protegido.")
     except Exception as e:
         return render_template('split.html', mensagem=f"Ocorreu um erro ao dividir o PDF: {e}")
     finally:

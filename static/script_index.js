@@ -4,38 +4,40 @@ document.addEventListener('DOMContentLoaded', () => {
     const customFileLabel = uploadArea.querySelector('.custom-file-label');
     const initialState = uploadArea.querySelector('.initial-state');
     const selectedFileState = uploadArea.querySelector('.selected-file-state');
+    const selectedFilesListMobile = document.getElementById('selectedFilesList');
+    const selectedFilesListDesktop = document.getElementById('selectedFilesListDesktop');
 
-    // As duas listas de arquivos: uma para visualização mobile (dentro do upload-label), outra para desktop (na coluna lateral)
-    const selectedFilesListMobile = document.getElementById('selectedFilesList'); // A lista original dentro do label
-    const selectedFilesListDesktop = document.getElementById('selectedFilesListDesktop'); // A nova lista na coluna lateral
+    // Elementos da Barra de Progresso
+    const mergeForm = document.getElementById('mergeForm');
+    const mergeButton = document.getElementById('mergeButton');
+    const progressBarContainer = document.getElementById('progressBarContainer');
+    const progressBar = document.getElementById('progressBar');
+    const progressStatus = document.getElementById('progressStatus');
+    const statusMessage = document.getElementById('statusMessage');
 
     let selectedFilesDataTransfer = new DataTransfer();
+    let pollingInterval; // Variável para armazenar o ID do intervalo de polling
 
     function updateFileList() {
-        // Limpa ambas as listas visuais
         selectedFilesListMobile.innerHTML = '';
         selectedFilesListDesktop.innerHTML = '';
 
-        // Se não há arquivos, mostra o estado inicial da área de upload
         if (selectedFilesDataTransfer.items.length === 0) {
             initialState.style.display = 'flex';
             selectedFileState.style.display = 'none';
-            fileInput.value = ''; // Reseta o input de arquivo
+            fileInput.value = '';
             console.log("Lista de arquivos vazia. Input file resetado.");
-            return; // Sai da função
+            return;
         }
 
-        // Se há arquivos, mostra o estado de arquivos selecionados
         initialState.style.display = 'none';
-        selectedFileState.style.display = 'flex'; // Isso é para o selected-file-state dentro do custom-file-label (mobile)
+        selectedFileState.style.display = 'flex';
 
         Array.from(selectedFilesDataTransfer.files).forEach((file) => {
-            // Cria item para a lista Mobile
             const listItemMobile = document.createElement('li');
             listItemMobile.textContent = file.name;
             selectedFilesListMobile.appendChild(listItemMobile);
 
-            // Cria item para a lista Desktop
             const listItemDesktop = document.createElement('li');
             listItemDesktop.textContent = file.name;
             selectedFilesListDesktop.appendChild(listItemDesktop);
@@ -62,16 +64,36 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (filesAdded) {
             fileInput.files = selectedFilesDataTransfer.files;
-            updateFileList(); // Atualiza a lista visual após adicionar arquivos
+            updateFileList();
         }
     }
 
+    function showMessage(message, type) {
+        statusMessage.textContent = message;
+        statusMessage.className = `alert mt-3 alert-${type}`; // Bootstrap class
+        statusMessage.style.display = 'block';
+    }
+
+    function hideMessage() {
+        statusMessage.style.display = 'none';
+    }
+
+    function resetUI() {
+        progressBarContainer.style.display = 'none';
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', '0');
+        progressBar.textContent = '0%';
+        progressStatus.textContent = 'Processando...';
+        mergeButton.disabled = false;
+        hideMessage();
+        // Não reseta os arquivos selecionados, o usuário pode querer tentar novamente
+        // ou a página já atualiza ao fazer o download.
+    }
+
     customFileLabel.addEventListener('click', (event) => {
-        // Aciona o clique no input de arquivo.
         fileInput.click();
         console.log("Label clicada. Acionando seletor de arquivos.");
     });
-
 
     fileInput.addEventListener('change', (event) => {
         console.log("Evento 'change' no input file disparado. Adicionando arquivos.");
@@ -94,6 +116,89 @@ document.addEventListener('DOMContentLoaded', () => {
         addFiles(event.dataTransfer.files);
     });
 
-    // Chama updateFileList uma vez para configurar o estado inicial ao carregar a página
-    updateFileList();
+    // Intercepta o envio do formulário
+    mergeForm.addEventListener('submit', async (event) => {
+        event.preventDefault(); // Impede o envio tradicional do formulário
+
+        hideMessage(); // Esconde qualquer mensagem anterior
+
+        // Validação básica se há arquivos selecionados
+        if (selectedFilesDataTransfer.items.length === 0) {
+            showMessage("Por favor, selecione pelo menos um arquivo PDF.", "danger");
+            return;
+        }
+
+        mergeButton.disabled = true; // Desabilita o botão para evitar múltiplos envios
+        progressBarContainer.style.display = 'block'; // Mostra a barra de progresso
+        progressBar.style.width = '0%';
+        progressBar.setAttribute('aria-valuenow', '0');
+        progressBar.textContent = '0%';
+        progressStatus.textContent = 'Enviando arquivos...';
+
+        const formData = new FormData();
+        Array.from(selectedFilesDataTransfer.files).forEach(file => {
+            formData.append('pdfs[]', file);
+        });
+        const nomeArquivo = document.getElementById('nome_arquivo').value;
+        if (nomeArquivo) {
+            formData.append('nome_arquivo', nomeArquivo);
+        }
+
+        try {
+            // Envia os arquivos para o Flask via AJAX
+            const uploadResponse = await fetch('/unir', {
+                method: 'POST',
+                body: formData
+            });
+
+            if (!uploadResponse.ok) {
+                const errorData = await uploadResponse.json();
+                throw new Error(errorData.mensagem || "Erro ao iniciar o upload.");
+            }
+
+            const data = await uploadResponse.json();
+            const taskId = data.task_id;
+            progressStatus.textContent = 'Processando PDF...';
+
+            // Inicia o polling para verificar o status
+            pollingInterval = setInterval(async () => {
+                const statusResponse = await fetch(`/status/${taskId}`);
+                const statusData = await statusResponse.json();
+
+                progressBar.style.width = `${statusData.progress}%`;
+                progressBar.setAttribute('aria-valuenow', statusData.progress);
+                progressBar.textContent = `${statusData.progress}%`;
+                progressStatus.textContent = `Processando: ${statusData.progress}%`;
+
+                if (statusData.status === 'completed') {
+                    clearInterval(pollingInterval);
+                    progressStatus.textContent = 'Processamento concluído! Baixando arquivo...';
+                    showMessage("PDFs unidos com sucesso!", "success");
+                    
+                    // Inicia o download do arquivo
+                    window.location.href = `/download/${taskId}`;
+                    
+                    resetUI(); // Reseta a UI após o download
+                    selectedFilesDataTransfer = new DataTransfer(); // Limpa os arquivos selecionados
+                    updateFileList(); // Atualiza a lista visual
+                } else if (statusData.status === 'failed') {
+                    clearInterval(pollingInterval);
+                    const errorMessage = statusData.error || "Ocorreu um erro no processamento.";
+                    showMessage(`Erro: ${errorMessage}`, "danger");
+                    resetUI();
+                } else if (statusData.status === 'not_found') {
+                    clearInterval(pollingInterval);
+                    showMessage("Tarefa não encontrada ou expirou.", "danger");
+                    resetUI();
+                }
+            }, 2000); // Poll a cada 2 segundos
+
+        } catch (error) {
+            console.error("Erro na operação:", error);
+            showMessage(`Erro: ${error.message}`, "danger");
+            resetUI();
+        }
+    });
+
+    updateFileList(); // Inicializa a lista ao carregar a página
 });
