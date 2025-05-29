@@ -35,7 +35,7 @@
             <h1 class="mb-4 app-title">Misturar PDFs</h1>
             <form action="/mix_pdf" method="post" enctype="multipart/form-data" class="needs-validation" novalidate>
                 <div class="mb-3">
-                    <label for="main_pdf_file" class="form-label upload-label">1. PDF Principal (onde inserir páginas):</label>
+                    <label class="form-label upload-label">1. PDF Principal (onde inserir páginas):</label>
                     <div class="custom-file-upload" id="mainPdfUpload">
                         <input type="file" id="main_pdf_file" name="main_pdf_file" accept=".pdf" required>
                         <label class="custom-file-label d-flex flex-column align-items-center justify-content-center">
@@ -59,7 +59,7 @@
                 </div>
 
                 <div class="mb-4">
-                    <label for="source_pdf_file" class="form-label upload-label">2. PDF de onde extrair as páginas:</label>
+                    <label class="form-label upload-label">2. PDF de onde extrair as páginas:</label>
                     <div class="custom-file-upload" id="sourcePdfUpload">
                         <input type="file" id="source_pdf_file" name="source_pdf_file" accept=".pdf" required>
                         <label class="custom-file-label d-flex flex-column align-items-center justify-content-center">

@@ -15,6 +15,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     const uploadArea = document.getElementById('splitPdfUpload');
     const fileInput = document.getElementById('pdf_file');
+    const customFileLabel = uploadArea.querySelector('.custom-file-label'); // Seleciona o label
     const initialState = uploadArea.querySelector('.initial-state');
     const selectedFileState = uploadArea.querySelector('.selected-file-state');
     const fileNameDisplay = selectedFileState.querySelector('.file-name');
@@ -34,15 +35,15 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadArea.classList.add('has-file');
     }
 
-    // ***** NOVO: Listener de clique na área de upload. Este será o ÚNICO a abrir o seletor. *****
+    // ***** NOVO: Listener de clique diretamente no LABEL. Este será o ÚNICO a abrir o seletor. *****
     // Remover o 'for' do label no HTML é crucial para que este listener controle.
-    uploadArea.addEventListener('click', (event) => {
+    customFileLabel.addEventListener('click', (event) => {
         if (event.target === removeFileButton) {
             console.log("Clique no botão de remover detectado em Split. Não abrimos o seletor.");
             return;
         }
         fileInput.click();
-        console.log("Área de upload clicada em Split. Acionando seletor de arquivos.");
+        console.log("Label clicada em Split. Acionando seletor de arquivos.");
     });
 
     fileInput.addEventListener('change', (event) => {
